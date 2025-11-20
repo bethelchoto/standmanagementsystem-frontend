@@ -1,0 +1,356 @@
+<section class="dashboard">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">SM</div>
+      <div class="brand-copy">
+        <p class="eyebrow">Stand Management</p>
+        <strong>Control Center</strong>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <p class="section-label">Navigation</p>
+      <nav>
+        @for (item of sidebarNav; track item.label) {
+          <button type="button" class="nav-link" [class.active]="item.active" (click)="handleSidebarNavClick(item)">
+            <span class="icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation">
+                <ng-container [ngSwitch]="item.icon">
+                  <path
+                    *ngSwitchCase="'dashboard'"
+                    d="M3 3h8v8H3V3zm10 0h8v6h-8V3zM3 13h8v8H3v-8zm10-4h8v12h-8V9z"
+                  />
+                  <path
+                    *ngSwitchCase="'stands'"
+                    d="m4 9 8-5 8 5v10H4V9zm8-2.5-5 3.1V17h10v-7.4l-5-3.1z"
+                  />
+                  <path
+                    *ngSwitchCase="'buyers'"
+                    d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z"
+                  />
+                  <path
+                    *ngSwitchCase="'transactions'"
+                    d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z"
+                  />
+                  <path
+                    *ngSwitchCase="'reports'"
+                    d="M6 20V10h2v10zm5 0V4h2v16zm5 0v-6h2v6z"
+                  />
+                  <path
+                    *ngSwitchCase="'map'"
+                    d="M4 5h16v14H4zm2 2v10h12V7z"
+                  />
+                  <path
+                    *ngSwitchCase="'settings'"
+                    d="m12 8 1.1-2.1 2.2-.4.5-2.5 2.1.7 1.4 2-1.5 2 1.5 2-1.4 2-2.1.7-.5-2.5-2.2-.4L12 8l-1.1 2.1-2.2.4-.5 2.5-2.1-.7-1.4-2 1.5-2-1.5-2 1.4-2 2.1-.7.5 2.5 2.2.4z"
+                  />
+                  <path
+                    *ngSwitchDefault
+                    d="M5 11h14v2H5z"
+                  />
+                </ng-container>
+              </svg>
+            </span>
+            <span>{{ item.label }}</span>
+            @if (item.badge) {
+              <span class="badge">{{ item.badge }}</span>
+            }
+          </button>
+        }
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <p>Daily health checks synced at 05:00 UTC</p>
+      <button type="button">View Status Page</button>
+    </div>
+  </aside>
+
+  <div class="content-area">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Welcome back</p>
+        <h1>Stand Operations Dashboard</h1>
+        <p class="helper">Monitor allocations, track transactions, and align teams.</p>
+      </div>
+      <div class="topbar-actions">
+        <label class="search">
+          <input type="search" placeholder="Search stands, buyers, tasks..." />
+        </label>
+        <button type="button" class="ghost">Share</button>
+        <button type="button" class="primary">New Stand</button>
+        <div class="avatar" aria-label="Profile">
+          <span>NL</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="card-grid kpi-grid">
+      @for (card of metricCards; track card.label) {
+        <article class="card metric-card">
+          <header>
+            <p class="eyebrow">{{ card.label }}</p>
+            <span class="delta" [class.positive]="card.deltaType === 'positive'" [class.negative]="card.deltaType === 'negative'">
+              {{ card.delta }}
+            </span>
+          </header>
+          <strong>{{ card.value }}</strong>
+          <p class="helper">{{ card.helper }}</p>
+          <div class="sparkline">
+            @for (value of card.sparkline; track $index; let i = $index) {
+              <span class="spark-bar" [style.height]="getSparkHeight(value)" [style.animation-delay]="i * 60 + 'ms'"></span>
+            }
+          </div>
+        </article>
+      }
+      <!-- <article class="card quarterly-card">
+        <header>
+          <p class="eyebrow">{{ quarterSummary.title }}</p>
+          <button type="button" class="ghost">Download</button>
+        </header>
+        <div class="quarter-body">
+          <div>
+            <strong>{{ quarterSummary.amount }}</strong>
+            <p>Total Revenue</p>
+          </div>
+          <div class="progress">
+            <span>Online Revenue</span>
+            <div class="progress-track">
+              <div class="progress-fill" [style.width]="quarterSummary.online + '%'"></div>
+            </div>
+            <span>Offline Revenue</span>
+            <div class="progress-track alt">
+              <div class="progress-fill" [style.width]="quarterSummary.offline + '%'"></div>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <div>
+            <strong>{{ quarterSummary.customers | number }}</strong>
+            <p>Customers</p>
+          </div>
+          <div>
+            <strong>{{ quarterSummary.orders / 1000 }}k</strong>
+            <p>Orders</p>
+          </div>
+          <div>
+            <strong>{{ quarterSummary.inventory / 1000 }}k</strong>
+            <p>Stock Left</p>
+          </div>
+          <div>
+            <strong>{{ quarterSummary.pending }}k</strong>
+            <p>Pending</p>
+          </div>
+        </footer>
+      </article> -->
+    </section>
+
+    <section class="card-grid geo-grid">
+      <article class="card geo-card">
+        <header>
+          <div>
+            <p class="eyebrow">Regional Allocation</p>
+            <p class="helper">Live density across priority states</p>
+          </div>
+          <button type="button" class="ghost">Detail View</button>
+        </header>
+
+        <div class="map-panel">
+          <figure class="map-figure">
+            <svg class="us-map" viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet">
+              <path class="map-outline" [attr.d]="mapOutlinePath"></path>
+              @for (state of mapStates; track state.id) {
+                <path class="map-state" [attr.d]="state.path" [style.fill]="state.color" />
+                <circle class="state-marker" [attr.cx]="state.centroid.x" [attr.cy]="state.centroid.y" r="6" [style.fill]="state.color"></circle>
+              }
+            </svg>
+          </figure>
+
+          <div class="map-callouts">
+            @for (state of mapStates; track state.id) {
+              <article class="callout">
+                <span class="dot" [style.background]="state.color"></span>
+                <div>
+                  <p class="eyebrow">{{ state.label }}</p>
+                  <strong>{{ state.percent }}</strong>
+                  <p class="helper">{{ state.stands }} stands · {{ state.delta }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+
+        <footer class="map-metrics">
+          @for (metric of mapSummaryStats; track metric.label) {
+            <div>
+              <p class="eyebrow">{{ metric.label }}</p>
+              <strong>{{ metric.value }}</strong>
+            </div>
+          }
+        </footer>
+      </article>
+
+      <article class="card allocation-card">
+        <header>
+          <p class="eyebrow">Allocation</p>
+          <span class="helper">Live utilization by state</span>
+        </header>
+
+        <div class="allocation-body">
+          <div class="donut" [style.background]=" 'conic-gradient(' + allocationGradient + ')' ">
+            <div class="donut-center">
+              <p>Total</p>
+              <strong>1,730</strong>
+              <span>Active stands</span>
+            </div>
+          </div>
+
+          <ul class="allocation-list">
+            @for (entry of allocationBreakdown; track entry.state) {
+              <li>
+                <span class="dot" [style.background]="entry.color"></span>
+                <span class="state">{{ entry.state }}</span>
+                <span>{{ entry.percent }}%</span>
+              </li>
+            }
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="card-grid overview-grid">
+      <article class="card monthly-card">
+        <header>
+          <div>
+            <p class="eyebrow">Monthly Overview</p>
+            <p class="helper">Revenue vs occupancy trend</p>
+          </div>
+          <button type="button" class="ghost">Export</button>
+        </header>
+
+        <div class="chart-wrapper">
+          <svg class="overview-chart" viewBox="0 0 100 100" preserveAspectRatio="none">
+            @for (series of monthlyOverview.series; track series.name) {
+              <polyline
+                [attr.points]="buildPolyline(series.points)"
+                [attr.stroke]="series.color"
+                fill="none"
+                stroke-width="2.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.9"
+              ></polyline>
+              @for (value of series.points; track $index; let i = $index) {
+                <circle
+                  [attr.cx]="getChartX(i, series.points.length)"
+                  [attr.cy]="getChartY(value)"
+                  r="1.8"
+                  [attr.fill]="series.color"
+                ></circle>
+              }
+            }
+          </svg>
+          <div class="chart-labels">
+            @for (label of monthlyOverview.labels; track label) {
+              <span>{{ label }}</span>
+            }
+          </div>
+        </div>
+
+        <footer class="monthly-stats">
+          @for (stat of monthlyOverview.stats; track stat.label) {
+            <div>
+              <p class="eyebrow">{{ stat.label }}</p>
+              <strong>{{ stat.value }}</strong>
+            </div>
+          }
+        </footer>
+      </article>
+
+      <article class="card activity-card">
+        <header>
+          <p class="eyebrow">Latest Transactions</p>
+          <button type="button" class="ghost">All Transactions</button>
+        </header>
+
+        <ul class="transaction-list">
+          @for (transaction of latestTransactions; track transaction.name + transaction.stand) {
+            <li>
+              <div>
+                <strong>{{ transaction.name }}</strong>
+                <p>Stand {{ transaction.stand }}</p>
+              </div>
+              <div class="status">{{ transaction.date }}</div>
+              <span class="pill" [class.success]="transaction.status === 'Confirmed'" [class.pending]="transaction.status === 'Pending'" [class.error]="transaction.status === 'Rejected'">
+                {{ transaction.status }}
+              </span>
+            </li>
+          }
+        </ul>
+
+        <div class="divider"></div>
+
+        <section class="feed">
+          <header>
+            <p class="eyebrow">Latest Feed</p>
+            <button type="button" class="ghost">View Feed</button>
+          </header>
+
+          <ul>
+            @for (item of liveFeed; track item.title) {
+              <li>
+                <div>
+                  <strong>{{ item.title }}</strong>
+                  <p>{{ item.author }} · {{ item.timeAgo }}</p>
+                </div>
+                <span class="pill subtle">{{ item.tag }}</span>
+              </li>
+            }
+          </ul>
+        </section>
+      </article>
+    </section>
+
+    <!-- <section class="card-grid bottom-grid">
+      <article class="card requirements-card">
+        <header>
+          <p class="eyebrow">Functional Requirements</p>
+          <span class="helper">Mapped from service brief</span>
+        </header>
+
+        <ul>
+          @for (requirement of functionalRequirements; track requirement) {
+            <li>
+              <span class="check" aria-hidden="true"></span>
+              <p>{{ requirement }}</p>
+            </li>
+          }
+        </ul>
+      </article>
+
+      <article class="card projects-card">
+        <header>
+          <p class="eyebrow">Projects</p>
+          <button type="button" class="ghost">Create</button>
+        </header>
+
+        <ul>
+          @for (project of projects; track project.name) {
+            <li>
+              <div>
+                <strong>{{ project.name }}</strong>
+                <p>{{ project.owner }} · Due {{ project.due }}</p>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" [style.width]="project.progress + '%'"></div>
+              </div>
+              <span class="helper">{{ project.progress }}% complete</span>
+            </li>
+          }
+        </ul>
+      </article>
+    </section> -->
+  </div>
+</section>
+
+

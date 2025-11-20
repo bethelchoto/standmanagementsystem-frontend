@@ -1,0 +1,9 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-background {
+  background: #f6f7fc;
+  min-height: 100vh;
+}

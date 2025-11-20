@@ -1,0 +1,111 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="card-header">
+      <!-- <p class="eyebrow">Create your workspace</p> -->
+      <p class="eyebrow">Stand Management System</p>
+      <h1>Sign Up</h1>
+      <!-- <p class="helper">Tell us about you to get access instantly.</p> -->
+    </div>
+
+    @if (serverMessage(); as message) {
+      <div class="alert" [class.success]="message.type === 'success'" [class.error]="message.type === 'error'">
+        {{ message.text }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <div class="field-grid">
+        <label class="field has-icon icon-user">
+          <span class="field-label">First name</span>
+          <input
+            placeholder="First name"
+            formControlName="firstName"
+            [class.invalid]="form.controls.firstName.invalid && (form.controls.firstName.touched || submitted())"
+            autocomplete="given-name"
+          />
+          @if (form.controls.firstName.invalid && (form.controls.firstName.touched || submitted())) {
+            <small>First name is required.</small>
+          }
+        </label>
+
+        <label class="field has-icon icon-user">
+          <span class="field-label">Last name</span>
+          <input
+            placeholder="Last name"
+            formControlName="lastName"
+            [class.invalid]="form.controls.lastName.invalid && (form.controls.lastName.touched || submitted())"
+            autocomplete="family-name"
+          />
+          @if (form.controls.lastName.invalid && (form.controls.lastName.touched || submitted())) {
+            <small>Last name is required.</small>
+          }
+        </label>
+      </div>
+
+      <label class="field has-icon icon-mail">
+        <span class="field-label">Work email</span>
+        <input
+          type="email"
+          placeholder="you@standhq.com"
+          formControlName="email"
+          [class.invalid]="form.controls.email.invalid && (form.controls.email.touched || submitted())"
+          autocomplete="email"
+        />
+        @if (form.controls.email.invalid && (form.controls.email.touched || submitted())) {
+          <small>Provide a valid email address.</small>
+        }
+      </label>
+
+      <label class="field has-icon icon-phone">
+        <span class="field-label">Phone number</span>
+        <input
+          type="tel"
+          placeholder="+263 77 123 4567"
+          formControlName="phoneNumber"
+          [class.invalid]="form.controls.phoneNumber.invalid && (form.controls.phoneNumber.touched || submitted())"
+          autocomplete="tel"
+        />
+        @if (form.controls.phoneNumber.invalid && (form.controls.phoneNumber.touched || submitted())) {
+          <small>Add a reachable phone number.</small>
+        }
+      </label>
+
+      <label class="field has-icon icon-lock">
+        <span class="field-label">Password</span>
+        <input
+          type="password"
+          placeholder="Minimum 6 characters"
+          formControlName="password"
+          [class.invalid]="form.controls.password.invalid && (form.controls.password.touched || submitted())"
+          autocomplete="new-password"
+        />
+        @if (form.controls.password.invalid && (form.controls.password.touched || submitted())) {
+          <small>Use at least 6 characters to keep things secure.</small>
+        }
+      </label>
+
+      <label class="field icon-dropdown">
+        <span class="field-label">Role</span>
+        <select formControlName="role">
+          <option value="general">General user</option>
+          <option value="admin">Administrator</option>
+        </select>
+      </label>
+
+      <button type="submit" class="primary" [disabled]="loading()">
+        @if (loading()) {
+          <span class="loader"></span>
+          Creating workspace...
+        } @else {
+          Create Account
+        }
+      </button>
+    </form>
+
+    <p class="footer-link">
+      Already collaborating here?
+      <a routerLink="../login">Back to login</a>
+    </p>
+  </div>
+</section>
+

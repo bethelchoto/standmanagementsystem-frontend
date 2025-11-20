@@ -1,0 +1,108 @@
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="card-header">
+      <p class="eyebrow">Stand Management System</p>
+      <h1>Sign In</h1>
+      <!-- <p class="helper">Use your workspace credentials to continue.</p> -->
+    </div>
+
+    @if (serverMessage(); as message) {
+      <div class="alert" [class.success]="message.type === 'success'" [class.error]="message.type === 'error'">
+        {{ message.text }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="handleSubmit()" novalidate>
+      <label class="field has-icon icon-user">
+        <span class="field-label sr-only">Email address</span>
+        <input
+          type="email"
+          placeholder="Username"
+          formControlName="email"
+          [class.invalid]="form.controls.email.invalid && (form.controls.email.touched || submitted())"
+          autocomplete="email"
+        />
+        @if (form.controls.email.invalid && (form.controls.email.touched || submitted())) {
+          <small>Enter a valid email to continue.</small>
+        }
+      </label>
+
+      <label class="field has-icon icon-lock">
+        <span class="field-label sr-only">Password</span>
+        <input
+          type="password"
+          placeholder="Password"
+          formControlName="password"
+          [class.invalid]="form.controls.password.invalid && (form.controls.password.touched || submitted())"
+          autocomplete="current-password"
+        />
+        @if (form.controls.password.invalid && (form.controls.password.touched || submitted())) {
+          <small>Your password must be at least 6 characters long.</small>
+        }
+      </label>
+
+      <div class="field-row">
+        <label class="checkbox">
+          <input type="checkbox" />
+          <span>Remember me</span>
+        </label>
+
+        <a class="text-link" href="mailto:support@standmanager.com">Need help signing in?</a>
+      </div>
+
+      <button type="submit" class="primary" [disabled]="loading()">
+        @if (loading()) {
+          <span class="loader"></span>
+          Authenticating...
+        } @else {
+          Sign In
+        }
+      </button>
+    </form>
+
+    <p class="footer-link">
+      Dont have an account ?
+      <a routerLink="../signup">Sign up</a>
+    </p>
+  </div>
+
+  @if (responseDetails(); as details) {
+    <div class="response-summary">
+      <div class="summary-header">
+        <h2>API Response</h2>
+        <span class="status-pill">Status {{ details.status }}</span>
+      </div>
+
+      <p class="summary-message">{{ details.message }}</p>
+
+      <div class="response-meta">
+        <div>
+          <span class="label">User Email</span>
+          <strong>{{ details.userEmail }}</strong>
+        </div>
+        <div>
+          <span class="label">Role</span>
+          <strong class="role-pill">{{ details.userRole }}</strong>
+        </div>
+      </div>
+
+      <div class="token-wrapper">
+        <span class="label">JWT Token</span>
+        <code class="token-chip">{{ details.token }}</code>
+      </div>
+
+      <div class="headers-wrapper">
+        <span class="label">Response Headers</span>
+        <div class="headers-list">
+          @for (header of details.headers; track header.key) {
+            <span class="header-pair">
+              <strong>{{ header.key }}</strong>
+              <span>{{ header.value }}</span>
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</section>
+
