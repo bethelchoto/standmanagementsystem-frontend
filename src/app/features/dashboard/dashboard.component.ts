@@ -1,6 +1,8 @@
-import { CommonModule, NgClass, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 type SummaryCard = {
   label: string;
@@ -57,17 +59,34 @@ type SidebarNavItem = {
   route?: string;
 };
 
+type UserProfile = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  avatarUrl: string;
+};
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgClass, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault],
+  imports: [CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent {
+export class DashboardComponent implements OnInit, OnDestroy {
   constructor(private readonly router: Router) {}
 
+  @ViewChild('profileMenu', { static: false }) private profileMenuRef?: ElementRef<HTMLElement>;
+
+  protected activeView: 'dashboard' | 'settings' = 'dashboard';
   protected isUserMenuOpen = false;
+  private routerSubscription?: Subscription;
 
   protected readonly sidebarNav: SidebarNavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', active: true, route: 'dashboard' },
@@ -76,8 +95,21 @@ export class DashboardComponent {
     { label: 'Payments', icon: 'payments', badge: '4' },
     { label: 'Reports', icon: 'reports' },
     { label: 'Map', icon: 'map', route: 'map' },
-    { label: 'Settings', icon: 'settings' },
+    { label: 'Settings', icon: 'settings', route: 'settings' },
   ];
+
+  protected readonly userProfile: UserProfile = {
+    id: '34a86d54-bfa8-11f0-ac0c-5a387c688d6c',
+    firstName: 'Tale',
+    lastName: 'Mufundirwa',
+    email: 'mufundirwaebenezert@gmail.com',
+    phoneNumber: '+250789564612',
+    role: 'general',
+    emailVerified: true,
+    createdAt: '2025-11-12T07:16:00.000Z',
+    updatedAt: '2025-11-12T07:18:13.000Z',
+    avatarUrl: 'https://i.pravatar.cc/160?img=5'
+  };
 
   protected readonly salesSummaryCards: SummaryCard[] = [
     { label: 'Total Sales', value: '$1k', helper: '+15% from yesterday', accent: 'sunset' },
@@ -135,6 +167,22 @@ export class DashboardComponent {
   private readonly targetPeak = Math.max(...this.targetRealityStats.flatMap((stat) => [stat.reality, stat.target]));
   private readonly servicePeak = Math.max(...this.serviceMix.map((service) => service.value));
 
+  protected get userInitials(): string {
+    return this.buildUserInitials(this.userProfile);
+  }
+
+  ngOnInit(): void {
+    this.syncActiveViewWithRoute(this.router.url);
+
+    this.routerSubscription = this.router.events
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
+      .subscribe((event) => this.syncActiveViewWithRoute(event.urlAfterRedirects));
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
+  }
+
   protected buildLinePoints(points: number[]): string {
     if (!points.length) {
       return '';
@@ -187,6 +235,22 @@ export class DashboardComponent {
     return `${(value / this.servicePeak) * 100}%`;
   }
 
+  protected formatDate(value: string): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '—';
+    }
+
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
   protected handleSidebarNavClick(item: SidebarNavItem): void {
     if (!item.route) {
       return;
@@ -195,14 +259,32 @@ export class DashboardComponent {
     this.router.navigate(['/', item.route]);
   }
 
-  protected handleLogout(): void {
-    this.isUserMenuOpen = false;
-    this.router.navigate(['/auth/login']);
+  protected isNavItemActive(item: SidebarNavItem): boolean {
+    if (item.route) {
+      const normalizedRoute = item.route.startsWith('/') ? item.route : `/${item.route}`;
+
+      return this.router.url.startsWith(normalizedRoute);
+    }
+
+    return Boolean(item.active);
   }
 
-  protected handleSettings(): void {
-    this.isUserMenuOpen = false;
+  protected openDashboardView(): void {
+    this.activeView = 'dashboard';
+    this.router.navigate(['/dashboard']);
+  }
+
+  protected openSettingsView(): void {
+    this.activeView = 'settings';
     this.router.navigate(['/settings']);
+  }
+
+  protected handleUpdateProfile(): void {
+    console.info('Update profile action triggered for:', this.userProfile.email);
+  }
+
+  protected handleLogout(): void {
+    this.router.navigate(['/auth/login']);
   }
 
   protected toggleUserMenu(event: MouseEvent): void {
@@ -210,13 +292,45 @@ export class DashboardComponent {
     this.isUserMenuOpen = !this.isUserMenuOpen;
   }
 
-  @HostListener('document:click')
-  protected handleDocumentClick(): void {
+  protected handleUserMenuSelect(action: 'settings' | 'logout'): void {
+    this.isUserMenuOpen = false;
+
+    if (action === 'settings') {
+      this.openSettingsView();
+      return;
+    }
+
+    this.handleLogout();
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected handleDocumentClick(event: MouseEvent): void {
     if (!this.isUserMenuOpen) {
       return;
     }
 
+    if (this.profileMenuRef?.nativeElement.contains(event.target as Node)) {
+      return;
+    }
+
     this.isUserMenuOpen = false;
+  }
+
+  private buildUserInitials(profile: UserProfile): string {
+    const firstInitial = profile.firstName?.charAt(0) ?? '';
+    const lastInitial = profile.lastName?.charAt(0) ?? '';
+    const initials = `${firstInitial}${lastInitial}`.trim();
+
+    return initials ? initials.toUpperCase() : 'NA';
+  }
+
+  private syncActiveViewWithRoute(url: string): void {
+    if (url.includes('/settings')) {
+      this.activeView = 'settings';
+      return;
+    }
+
+    this.activeView = 'dashboard';
   }
 }
 

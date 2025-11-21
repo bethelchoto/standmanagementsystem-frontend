@@ -9,6 +9,12 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
   {
+    path: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
+  },
+  {
     path: 'map',
     loadComponent: () => import('./features/map/map.component').then((m) => m.MapComponent)
   },
