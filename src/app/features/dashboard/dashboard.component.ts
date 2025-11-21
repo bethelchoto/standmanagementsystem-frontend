@@ -102,7 +102,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     id: '34a86d54-bfa8-11f0-ac0c-5a387c688d6c',
     firstName: 'Tale',
     lastName: 'Mufundirwa',
-    email: 'mufundirwaebenezert@gmail.com',
+    email: 'mufundirwaebenezert@gmail.com'.toLowerCase(),
     phoneNumber: '+250789564612',
     role: 'general',
     emailVerified: true,

@@ -401,6 +401,7 @@
 
 .profile-showcase__photo {
   width: 100%;
+  max-width: 240px;
   aspect-ratio: 1 / 1;
   border-radius: 46px;
   overflow: hidden;
@@ -510,6 +511,11 @@
   color: #0f172a;
   font-weight: 600;
   line-height: 1.3;
+  text-transform: none;
+}
+
+.info-row.email-row dd {
+  text-transform: lowercase !important;
 }
 
 .info-row strong {

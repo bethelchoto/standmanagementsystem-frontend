@@ -156,17 +156,15 @@
           </div>
 
           <div class="profile-showcase__details">
-            <div class="details-top">
-              <div>
-                <p class="eyebrow subtle">Profile</p>
-                <h2>{{ userProfile.firstName }} {{ userProfile.lastName }}</h2>
-              </div>
-            </div>
 
             <dl class="info-stack">
               <div class="info-row">
+                <dt>Profile</dt>
+                <dd>{{ userProfile.firstName }} {{ userProfile.lastName }}</dd>
+              </div>
+              <div class="info-row email-row">
                 <dt>Email</dt>
-                <dd>{{ userProfile.email }}</dd>
+                <dd>{{ userProfile.email | lowercase }}</dd>
               </div>
               <div class="info-row">
                 <dt>Cell</dt>
