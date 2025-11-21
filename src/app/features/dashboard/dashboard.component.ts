@@ -1,46 +1,52 @@
-import { CommonModule, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
+import { CommonModule, NgClass, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 
-type MetricCard = {
+type SummaryCard = {
   label: string;
   value: string;
   helper: string;
-  delta: string;
-  deltaType: 'positive' | 'negative' | 'neutral';
-  sparkline: number[];
+  accent: 'sunset' | 'citrus' | 'mint' | 'lavender';
 };
 
-type Transaction = {
-  name: string;
-  stand: string;
-  date: string;
-  status: 'Confirmed' | 'Pending' | 'Rejected';
-};
-
-type FeedItem = {
-  title: string;
-  author: string;
-  timeAgo: string;
-  tag: string;
-};
-
-type Project = {
-  name: string;
-  progress: number;
-  owner: string;
-  due: string;
-};
-
-type MapState = {
-  id: string;
+type RevenuePoint = {
   label: string;
+  online: number;
+  offline: number;
+};
+
+type VisitorSeries = {
+  name: string;
+  color: string;
+  points: number[];
+};
+
+type TargetRealityStat = {
+  label: string;
+  reality: number;
+  target: number;
+};
+
+type Product = {
+  rank: number;
+  name: string;
+  sales: string;
+  popularity: number;
+  color: string;
+};
+
+type RegionBreakdown = {
+  name: string;
   stands: number;
   percent: string;
-  delta: string;
   color: string;
-  path: string;
-  centroid: { x: number; y: number };
+  position: { x: number; y: number };
+};
+
+type ServiceMix = {
+  label: string;
+  value: number;
+  color: string;
 };
 
 type SidebarNavItem = {
@@ -54,7 +60,7 @@ type SidebarNavItem = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgSwitch, NgSwitchCase, NgSwitchDefault],
+  imports: [CommonModule, NgClass, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -72,162 +78,63 @@ export class DashboardComponent {
     { label: 'Support', icon: 'support' }
   ];
 
-  protected readonly metricCards: MetricCard[] = [
-    {
-      label: 'This Month',
-      value: '$168.9K',
-      helper: 'Net Revenue',
-      delta: '+18.2%',
-      deltaType: 'positive',
-      sparkline: [45, 60, 55, 72, 64, 78, 90]
-    },
-    {
-      label: 'Active Stands',
-      value: '1,730',
-      helper: 'Across 42 sites',
-      delta: '+77 new',
-      deltaType: 'positive',
-      sparkline: [30, 32, 34, 36, 40, 42, 44]
-    },
-    {
-      label: 'Occupancy',
-      value: '88%',
-      helper: 'Company-wide',
-      delta: '-3% vs. target',
-      deltaType: 'neutral',
-      sparkline: [85, 86, 84, 83, 87, 90, 88]
-    },
-    {
-      label: 'Pending Actions',
-      value: '27',
-      helper: 'Assignments to review',
-      delta: '+5 escalations',
-      deltaType: 'negative',
-      sparkline: [10, 12, 14, 17, 20, 23, 27]
-    }
+  protected readonly salesSummaryCards: SummaryCard[] = [
+    { label: 'Total Sales', value: '$1k', helper: '+15% from yesterday', accent: 'sunset' },
+    { label: 'Total Orders', value: '300', helper: '+8% from yesterday', accent: 'citrus' },
+    { label: 'Product Sold', value: '5', helper: '+12% from yesterday', accent: 'mint' },
+    { label: 'New Customers', value: '8', helper: '+0.8% from yesterday', accent: 'lavender' }
   ];
 
-  // protected readonly quarterSummary = {
-  //   title: 'This Quarter',
-  //   amount: '$3,936.80',
-  //   online: 70,
-  //   offline: 30,
-  //   customers: 968,
-  //   orders: 1800,
-  //   inventory: 30000,
-  //   pending: 1.7
-  // };
-
-  protected readonly mapOutlinePath =
-    'M90 260 L130 210 L190 185 L260 165 L330 150 L420 150 L480 180 L540 195 L600 215 L660 235 L700 255 L684 300 L636 330 L580 338 L520 360 L460 360 L400 348 L340 360 L280 342 L220 320 L170 302 L120 280 Z';
-
-  protected readonly mapStates: MapState[] = [
-    {
-      id: 'texas',
-      label: 'Texas',
-      stands: 352,
-      percent: '25%',
-      delta: '+12%',
-      color: '#2563eb',
-      path: 'M330 260 L390 260 L430 290 L420 330 L370 330 L340 300 Z',
-      centroid: { x: 380, y: 295 }
-    },
-    {
-      id: 'utah',
-      label: 'Utah',
-      stands: 118,
-      percent: '45%',
-      delta: '+8%',
-      color: '#7c3aed',
-      path: 'M240 210 L280 210 L280 260 L240 260 Z',
-      centroid: { x: 260, y: 235 }
-    },
-    {
-      id: 'nebraska',
-      label: 'Nebraska',
-      stands: 64,
-      percent: '15%',
-      delta: '+2%',
-      color: '#2dd4bf',
-      path: 'M300 180 L380 180 L380 215 L300 215 Z',
-      centroid: { x: 340, y: 195 }
-    },
-    {
-      id: 'georgia',
-      label: 'Georgia',
-      stands: 82,
-      percent: '10%',
-      delta: '+5%',
-      color: '#22c55e',
-      path: 'M520 240 L550 240 L565 280 L540 310 L510 285 Z',
-      centroid: { x: 535, y: 275 }
-    }
+  protected readonly revenueTrend: RevenuePoint[] = [
+    { label: 'Mon', online: 18, offline: 12 },
+    { label: 'Tue', online: 20, offline: 14 },
+    { label: 'Wed', online: 22, offline: 15 },
+    { label: 'Thu', online: 25, offline: 17 },
+    { label: 'Fri', online: 28, offline: 18 },
+    { label: 'Sat', online: 24, offline: 16 },
+    { label: 'Sun', online: 21, offline: 15 }
   ];
 
-  protected readonly mapSummaryStats = [
-    { label: 'Customers', value: '968' },
-    { label: 'Orders', value: '1.8k' },
-    { label: 'Stock Left', value: '30k' },
-    { label: 'Pending', value: '1.7k' }
-  ];
-
-  protected readonly allocationBreakdown = [
-    { state: 'Texas', percent: 35, color: '#2563eb' },
-    { state: 'Utah', percent: 25, color: '#7c3aed' },
-    { state: 'Georgia', percent: 20, color: '#22c55e' },
-    { state: 'Nebraska', percent: 12, color: '#2dd4bf' },
-    { state: 'Other', percent: 8, color: '#94a3b8' }
-  ];
-
-  protected readonly monthlyOverview = {
-    stats: [
-      { label: 'Avg. Ticket', value: '$1,730' },
-      { label: 'Increment', value: '77%' },
-      { label: 'Net Profit', value: '18%' }
-    ],
-    labels: ['15th', '16th', '17th', '18th', '19th', '20th', '21st'],
+  protected readonly visitorInsights = {
     series: [
-      { name: 'Revenue', color: '#22c55e', points: [60, 72, 68, 80, 76, 88, 92] },
-      { name: 'Occupancy', color: '#3b82f6', points: [48, 55, 52, 60, 57, 63, 70] }
+      { name: 'Loyal Customers', color: '#f472b6', points: [60, 68, 62, 74, 70, 82, 78, 85, 80, 88, 81, 90] },
+      { name: 'New Customers', color: '#22d3ee', points: [35, 42, 38, 50, 44, 58, 55, 60, 57, 62, 64, 70] },
+      { name: 'Unique Customers', color: '#8b5cf6', points: [48, 52, 50, 56, 54, 60, 59, 64, 62, 68, 66, 72] }
     ]
   };
 
-  protected readonly latestTransactions: Transaction[] = [
-    { name: 'Jordan Hunt', stand: 'A-112', date: '08 May', status: 'Confirmed' },
-    { name: 'Sarnel Field', stand: 'B-208', date: '08 May', status: 'Pending' },
-    { name: 'Jennifer Watkins', stand: 'C-145', date: '08 May', status: 'Confirmed' },
-    { name: 'Michael Birch', stand: 'D-067', date: '08 May', status: 'Rejected' },
-    { name: 'Jordan Hunt', stand: 'A-113', date: '08 May', status: 'Pending' }
+  protected readonly customerSatisfaction = [60, 64, 63, 67, 70, 69, 74, 72, 76, 78];
+
+  protected readonly targetRealityStats: TargetRealityStat[] = [
+    { label: 'Reality Sales', reality: 8823, target: 11232 },
+    { label: 'Target Sales', reality: 6300, target: 9500 },
+    { label: 'Net Profit', reality: 4132, target: 5200 }
   ];
 
-  protected readonly liveFeed: FeedItem[] = [
-    { title: 'Buyer presentation uploaded', author: 'Jordan Hunt', timeAgo: 'just now', tag: 'Docs' },
-    { title: 'Payment plan updated for Riverside Mall', author: 'Team Finance', timeAgo: '12m ago', tag: 'Billing' },
-    { title: 'New buyer inquiry assigned to you', author: 'Automation', timeAgo: '45m ago', tag: 'Lead' }
+  protected readonly topProducts: Product[] = [
+    { rank: 1, name: 'Home Décor Range', sales: '$1k sales', popularity: 65, color: 'linear-gradient(90deg,#60a5fa,#a855f7)' },
+    { rank: 2, name: 'Disney Princess Pink Bag 18"', sales: '$658 sales', popularity: 28, color: 'linear-gradient(90deg,#fb7185,#fbbf24)' },
+    { rank: 3, name: 'Bathroom Essentials', sales: '$402 sales', popularity: 18, color: 'linear-gradient(90deg,#34d399,#22d3ee)' },
+    { rank: 4, name: 'Apple Smartwatches', sales: '$352 sales', popularity: 25, color: 'linear-gradient(90deg,#c084fc,#a5b4fc)' }
   ];
 
-  protected readonly projects: Project[] = [
-    { name: 'Downtown Expansion', progress: 78, owner: 'Amelia West', due: 'Jul 20' },
-    { name: 'Seasonal Pop-ups', progress: 45, owner: 'Marcus Cole', due: 'Aug 02' },
-    { name: 'Buyer Portal Refresh', progress: 62, owner: 'UX Guild', due: 'Aug 15' }
+  protected readonly regionBreakdown: RegionBreakdown[] = [
+    { name: 'USA', stands: 312, percent: '35%', color: '#6366f1', position: { x: 38, y: 55 } },
+    { name: 'Canada', stands: 174, percent: '18%', color: '#22d3ee', position: { x: 32, y: 32 } },
+    { name: 'Brazil', stands: 120, percent: '12%', color: '#f97316', position: { x: 45, y: 85 } },
+    { name: 'India', stands: 205, percent: '22%', color: '#10b981', position: { x: 68, y: 58 } }
   ];
 
-  protected readonly functionalRequirements = [
-    'Admin users manage stands, buyers, reports, and company users end-to-end.',
-    'General users manage stands and buyers within their assigned scope.',
-    'Both roles can add stands, update details, and toggle availability.',
-    'Reporting respects access level (full vs. scoped).',
-    'Stand access is automatically scoped per role and owner.',
-    'Buyers and transactions inherit permissions from their parent stand.'
+  protected readonly serviceMix: ServiceMix[] = [
+    { label: 'Volume', value: 105, color: '#60a5fa' },
+    { label: 'Services', value: 95, color: '#34d399' }
   ];
 
-  protected readonly allocationGradient = this.buildAllocationGradient(this.allocationBreakdown);
+  private readonly revenuePeak = Math.max(...this.revenueTrend.flatMap((point) => [point.online, point.offline]));
+  private readonly targetPeak = Math.max(...this.targetRealityStats.flatMap((stat) => [stat.reality, stat.target]));
+  private readonly servicePeak = Math.max(...this.serviceMix.map((service) => service.value));
 
-  protected getSparkHeight(value: number): string {
-    return `${value}%`;
-  }
-
-  protected buildPolyline(points: number[]): string {
+  protected buildLinePoints(points: number[]): string {
     if (!points.length) {
       return '';
     }
@@ -239,7 +146,7 @@ export class DashboardComponent {
       .join(' ');
   }
 
-  protected getChartX(index: number, total: number): number {
+  protected getLineX(index: number, total: number): number {
     if (total <= 1) {
       return 0;
     }
@@ -247,20 +154,36 @@ export class DashboardComponent {
     return (index / (total - 1)) * 100;
   }
 
-  protected getChartY(value: number): number {
+  protected getLineY(value: number): number {
     return 100 - value;
   }
 
-  private buildAllocationGradient(breakdown: typeof this.allocationBreakdown): string {
-    let cursor = 0;
+  protected getTrendHeight(value: number): string {
+    if (!this.revenuePeak) {
+      return '0%';
+    }
 
-    return breakdown
-      .map((entry) => {
-        const start = cursor;
-        cursor += entry.percent;
-        return `${entry.color} ${start}% ${cursor}%`;
-      })
-      .join(', ');
+    return `${(value / this.revenuePeak) * 100}%`;
+  }
+
+  protected getTargetWidth(value: number): string {
+    if (!this.targetPeak) {
+      return '0%';
+    }
+
+    return `${(value / this.targetPeak) * 100}%`;
+  }
+
+  protected getProgressWidth(value: number): string {
+    return `${value}%`;
+  }
+
+  protected getServiceHeight(value: number): string {
+    if (!this.servicePeak) {
+      return '0%';
+    }
+
+    return `${(value / this.servicePeak) * 100}%`;
   }
 
   protected handleSidebarNavClick(item: SidebarNavItem): void {
