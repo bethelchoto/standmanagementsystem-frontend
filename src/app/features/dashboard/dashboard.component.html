@@ -35,9 +35,13 @@
       }
     </nav>
 
-    <div class="sidebar-card">
-      <p>Get access to all premium templates and analytics blocks.</p>
-      <button type="button">Get Pro</button>
+    <div class="sidebar-card logout-card">
+      <button type="button" class="logout-button" (click)="handleLogout()">
+        <span>Log out</span>
+        <svg viewBox="0 0 24 24" role="presentation" aria-hidden="true">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3zm3-10H8a2 2 0 0 0-2 2v4h2V5h11v14H8v-4H6v4a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+        </svg>
+      </button>
     </div>
   </aside>
 
@@ -49,21 +53,14 @@
         <p class="helper">Monitor stands, orders, and visitor signals in one place.</p>
       </div>
       <div class="header-tools">
-        <label class="search-field">
-          <svg viewBox="0 0 24 24" role="presentation">
-            <path d="M10 3a7 7 0 1 1 0 14 7 7 0 0 1 0-14zm0-2a9 9 0 0 0 0 18 9 9 0 0 0 5.66-2H17l4 4-1.4 1.4-4-4v-1.34A9 9 0 0 0 10 1z" />
-          </svg>
-          <input type="search" placeholder="Search here..." />
-        </label>
-        <button type="button" class="chip">Eng (US)</button>
         <button type="button" class="icon-button" aria-label="Notifications">
           <svg viewBox="0 0 24 24" role="presentation">
             <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm8-6v-5a8 8 0 0 0-6-7.75V2a2 2 0 0 0-4 0v1.25A8 8 0 0 0 4 11v5l-2 2v1h20v-1l-2-2z" />
           </svg>
         </button>
-        <div class="avatar" aria-label="Profile">
+        <button type="button" class="avatar-button" aria-label="Profile menu">
           <img src="https://i.pravatar.cc/100?img=5" alt="User avatar" />
-        </div>
+        </button>
       </div>
     </header>
 

@@ -193,6 +193,10 @@ export class DashboardComponent {
 
     this.router.navigate(['/', item.route]);
   }
+
+  protected handleLogout(): void {
+    this.router.navigate(['/auth/login']);
+  }
 }
 
 

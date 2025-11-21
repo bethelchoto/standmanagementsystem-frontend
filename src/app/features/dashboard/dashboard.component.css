@@ -126,6 +126,39 @@
   cursor: pointer;
 }
 
+.logout-card {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.logout-button {
+  margin: 0;
+  width: 100%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.9rem 1rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.logout-button svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
 .main-panel {
   flex: 1;
   background: #fff;
@@ -168,29 +201,6 @@
   gap: 0.75rem;
 }
 
-.search-field {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid #e2e8f0;
-  padding: 0.6rem 1rem;
-  border-radius: 999px;
-  min-width: 280px;
-}
-
-.search-field svg {
-  width: 18px;
-  height: 18px;
-  fill: #94a3b8;
-}
-
-.search-field input {
-  border: none;
-  outline: none;
-  width: 100%;
-  font: inherit;
-}
-
 .chip,
 .ghost {
   border: none;
@@ -219,18 +229,23 @@
   fill: #475569;
 }
 
-.avatar {
+.avatar-button {
   width: 44px;
   height: 44px;
   border-radius: 16px;
+  border: none;
+  padding: 0;
+  background: transparent;
   overflow: hidden;
+  cursor: pointer;
 }
 
-.avatar img {
+.avatar-button img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: inherit;
 }
 
 .analytics-grid {
@@ -639,10 +654,6 @@
   .header-tools {
     flex-wrap: wrap;
     justify-content: flex-start;
-  }
-
-  .search-field {
-    width: 100%;
   }
 
   .sales-cards {
