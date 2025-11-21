@@ -19,7 +19,7 @@
                 <path *ngSwitchCase="'dashboard'" d="M3 3h8v8H3V3zm10 0h8v6h-8V3zM3 13h8v8H3v-8zm10-4h8v12h-8V9z" />
                 <path *ngSwitchCase="'stands'" d="m4 9 8-5 8 5v10H4V9zm8-2.5-5 3.1V17h10v-7.4l-5-3.1z" />
                 <path *ngSwitchCase="'buyers'" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" />
-                <path *ngSwitchCase="'transactions'" d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z" />
+                <path *ngSwitchCase="'payements'" d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z" />
                 <path *ngSwitchCase="'reports'" d="M6 20V10h2v10zm5 0V4h2v16zm5 0v-6h2v6z" />
                 <path *ngSwitchCase="'map'" d="M4 5h16v14H4zm2 2v10h12V7z" />
                 <path *ngSwitchCase="'settings'" d="m12 8 1.1-2.1 2.2-.4.5-2.5 2.1.7 1.4 2-1.5 2 1.5 2-1.4 2-2.1.7-.5-2.5-2.2-.4L12 8l-1.1 2.1-2.2.4-.5 2.5-2.1-.7-1.4-2 1.5-2-1.5-2 1.4-2 2.1-.7.5 2.5 2.2.4z" />
@@ -58,9 +58,29 @@
             <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm8-6v-5a8 8 0 0 0-6-7.75V2a2 2 0 0 0-4 0v1.25A8 8 0 0 0 4 11v5l-2 2v1h20v-1l-2-2z" />
           </svg>
         </button>
-        <button type="button" class="avatar-button" aria-label="Profile menu">
-          <img src="https://i.pravatar.cc/100?img=5" alt="User avatar" />
-        </button>
+        <div class="profile-menu" [class.open]="isUserMenuOpen">
+          <button
+            type="button"
+            class="avatar-button"
+            aria-label="Profile menu"
+            aria-haspopup="true"
+            [attr.aria-expanded]="isUserMenuOpen"
+            (click)="toggleUserMenu($event)"
+          >
+            <span class="avatar">
+              <img src="https://i.pravatar.cc/100?img=5" alt="User avatar" />
+            </span>
+            <span class="dropdown-indicator" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="presentation">
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </span>
+          </button>
+          <div class="user-menu" role="menu" [attr.aria-hidden]="!isUserMenuOpen">
+            <button type="button" role="menuitem" (click)="handleSettings()">Settings</button>
+            <button type="button" role="menuitem" (click)="handleLogout()">Log out</button>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -123,150 +143,6 @@
       </article>
     </section>
 
-    <section class="panel-grid trio">
-      <article class="panel revenue-panel">
-        <header>
-          <p class="eyebrow">Total Revenue</p>
-          <span class="helper">Online vs Offline</span>
-        </header>
-        <div class="revenue-bars">
-          @for (point of revenueTrend; track point.label) {
-            <div class="bar-group">
-              <span class="bar online" [style.height]="getTrendHeight(point.online)"></span>
-              <span class="bar offline" [style.height]="getTrendHeight(point.offline)"></span>
-              <p>{{ point.label }}</p>
-            </div>
-          }
-        </div>
-      </article>
-
-      <article class="panel satisfaction-panel">
-        <header>
-          <p class="eyebrow">Customer Satisfaction</p>
-          <span class="helper">Tracked weekly</span>
-        </header>
-        <div class="satisfaction-chart">
-          <svg viewBox="0 0 100 100" preserveAspectRatio="none">
-            <polyline
-              [attr.points]="buildLinePoints(customerSatisfaction)"
-              stroke="#34d399"
-              fill="none"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            ></polyline>
-            <polygon
-              [attr.points]="buildLinePoints(customerSatisfaction) + ' 100,100 0,100'"
-              fill="rgba(16, 185, 129, 0.15)"
-            ></polygon>
-          </svg>
-        </div>
-        <div class="satisfaction-footer">
-          <div>
-            <p class="eyebrow">Last Month</p>
-            <strong>3,804</strong>
-          </div>
-          <div>
-            <p class="eyebrow">This Month</p>
-            <strong>4,516</strong>
-          </div>
-        </div>
-      </article>
-
-      <article class="panel target-panel">
-        <header>
-          <p class="eyebrow">Target vs Reality</p>
-          <span class="helper">Quarterly focus</span>
-        </header>
-        <ul>
-          @for (stat of targetRealityStats; track stat.label) {
-            <li>
-              <div class="stat-header">
-                <strong>{{ stat.label }}</strong>
-                <span>{{ stat.reality | number }}</span>
-              </div>
-              <div class="stat-bars">
-                <span class="reality" [style.width]="getTargetWidth(stat.reality)"></span>
-                <span class="target" [style.width]="getTargetWidth(stat.target)"></span>
-              </div>
-              <div class="stat-footer">
-                <span>Reality</span>
-                <span>Target {{ stat.target | number }}</span>
-              </div>
-            </li>
-          }
-        </ul>
-      </article>
-    </section>
-
-    <section class="panel-grid bottom-grid">
-      <article class="panel top-products">
-        <header>
-          <p class="eyebrow">Top Products</p>
-          <span class="helper">Popularity · Sales</span>
-        </header>
-        <ol>
-          @for (product of topProducts; track product.name) {
-            <li>
-              <div>
-                <span class="rank">{{ product.rank | number:'2.0-0' }}</span>
-                <div>
-                  <strong>{{ product.name }}</strong>
-                  <p>{{ product.sales }}</p>
-                </div>
-              </div>
-              <div class="progress-track">
-                <div class="progress-fill" [style.width]="getProgressWidth(product.popularity)" [ngStyle]="{ background: product.color }"></div>
-              </div>
-              <span class="helper">{{ product.popularity }}% popularity</span>
-            </li>
-          }
-        </ol>
-      </article>
-
-      <article class="panel sales-map">
-        <header>
-          <p class="eyebrow">Sales Mapping by Country</p>
-          <span class="helper">Live coverage</span>
-        </header>
-        <div class="map-canvas">
-          <svg viewBox="0 0 300 160" preserveAspectRatio="xMidYMid meet">
-            <path d="M20 80 Q40 30 90 40 T150 50 T220 70 T280 60 Q260 110 210 120 T130 130 T70 120 T20 80" />
-          </svg>
-          @for (region of regionBreakdown; track region.name) {
-            <span class="marker" [style.left]="region.position.x + '%'" [style.top]="region.position.y + '%'" [style.background]="region.color"></span>
-          }
-        </div>
-        <ul class="region-list">
-          @for (region of regionBreakdown; track region.name) {
-            <li>
-              <span class="dot" [style.background]="region.color"></span>
-              <div>
-                <strong>{{ region.name }}</strong>
-                <p>{{ region.stands }} stands</p>
-              </div>
-              <span class="pill subtle">{{ region.percent }}</span>
-            </li>
-          }
-        </ul>
-      </article>
-
-      <article class="panel service-panel">
-        <header>
-          <p class="eyebrow">Volume vs Service Level</p>
-          <span class="helper">Live service mix</span>
-        </header>
-        <div class="service-bars">
-          @for (service of serviceMix; track service.label) {
-            <div>
-              <span class="service-bar" [style.height]="getServiceHeight(service.value)" [style.background]="service.color"></span>
-              <p>{{ service.label }}</p>
-              <strong>{{ service.value }}</strong>
-            </div>
-          }
-        </div>
-      </article>
-    </section>
   </div>
 </section>
 

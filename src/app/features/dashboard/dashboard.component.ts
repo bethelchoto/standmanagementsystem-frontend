@@ -1,5 +1,5 @@
 import { CommonModule, NgClass, NgStyle, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 
 type SummaryCard = {
@@ -67,15 +67,16 @@ type SidebarNavItem = {
 export class DashboardComponent {
   constructor(private readonly router: Router) {}
 
+  protected isUserMenuOpen = false;
+
   protected readonly sidebarNav: SidebarNavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', active: true, route: 'dashboard' },
     { label: 'Stands', icon: 'stands', badge: '12' },
     { label: 'Buyers', icon: 'buyers' },
-    { label: 'Transactions', icon: 'transactions', badge: '4' },
+    { label: 'Payments', icon: 'payments', badge: '4' },
     { label: 'Reports', icon: 'reports' },
     { label: 'Map', icon: 'map', route: 'map' },
     { label: 'Settings', icon: 'settings' },
-    { label: 'Support', icon: 'support' }
   ];
 
   protected readonly salesSummaryCards: SummaryCard[] = [
@@ -195,7 +196,27 @@ export class DashboardComponent {
   }
 
   protected handleLogout(): void {
+    this.isUserMenuOpen = false;
     this.router.navigate(['/auth/login']);
+  }
+
+  protected handleSettings(): void {
+    this.isUserMenuOpen = false;
+    this.router.navigate(['/settings']);
+  }
+
+  protected toggleUserMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  @HostListener('document:click')
+  protected handleDocumentClick(): void {
+    if (!this.isUserMenuOpen) {
+      return;
+    }
+
+    this.isUserMenuOpen = false;
   }
 }
 

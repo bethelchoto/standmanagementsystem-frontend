@@ -229,15 +229,37 @@
   fill: #475569;
 }
 
+.profile-menu {
+  position: relative;
+}
+
 .avatar-button {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.35rem 0.2rem 0.2rem;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-button:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 3px;
+}
+
+.avatar-button:hover {
+  border-color: #c7d2fe;
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.12);
+}
+
+.avatar-button .avatar {
   width: 44px;
   height: 44px;
-  border-radius: 16px;
-  border: none;
-  padding: 0;
-  background: transparent;
+  border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
 }
 
 .avatar-button img {
@@ -245,7 +267,72 @@
   height: 100%;
   object-fit: cover;
   display: block;
-  border-radius: inherit;
+}
+
+.dropdown-indicator {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: #475569;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-indicator svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.profile-menu.open .dropdown-indicator {
+  transform: rotate(180deg);
+}
+
+.user-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 180px;
+  padding: 0.4rem;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  max-height: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease, max-height 0.2s ease;
+  z-index: 10;
+}
+
+.profile-menu.open .user-menu {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  max-height: 400px;
+}
+
+.user-menu button {
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  text-align: left;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.user-menu button:hover {
+  background: #eef2ff;
+  color: #4338ca;
 }
 
 .analytics-grid {
