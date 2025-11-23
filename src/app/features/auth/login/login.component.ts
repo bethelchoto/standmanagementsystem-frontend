@@ -3,7 +3,6 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
-
 import { AuthApiService } from '../../../core/services/auth-api.service';
 import type { ApiResponse, LoginRequest, LoginResponse } from '../../../core/models/auth.model';
 import type { HttpResponse } from '@angular/common/http';
@@ -99,4 +98,3 @@ export class LoginComponent {
       });
   }
 }
-

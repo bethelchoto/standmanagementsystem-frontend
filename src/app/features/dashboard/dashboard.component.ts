@@ -1,8 +1,9 @@
 import { CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
-import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { UpdateProfileModalComponent } from './update-profile-modal/update-profile-modal.component';
 
 type SummaryCard = {
   label: string;
@@ -75,7 +76,7 @@ type UserProfile = {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault],
+  imports: [CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault, UpdateProfileModalComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -86,6 +87,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   protected activeView: 'dashboard' | 'settings' = 'dashboard';
   protected isUserMenuOpen = false;
+  protected isUpdateProfileModalOpen = signal(false);
   private routerSubscription?: Subscription;
 
   protected readonly sidebarNav: SidebarNavItem[] = [
@@ -280,7 +282,18 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   protected handleUpdateProfile(): void {
-    console.info('Update profile action triggered for:', this.userProfile.email);
+    this.isUpdateProfileModalOpen.set(true);
+  }
+
+  protected handleCloseUpdateProfileModal(): void {
+    this.isUpdateProfileModalOpen.set(false);
+  }
+
+  protected handleProfileUpdated(): void {
+    // Refresh user profile data here if needed
+    // For now, we'll just close the modal
+    // You can add API call to fetch updated profile data
+    console.info('Profile updated successfully');
   }
 
   protected handleLogout(): void {
@@ -333,5 +346,3 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.activeView = 'dashboard';
   }
 }
-
-

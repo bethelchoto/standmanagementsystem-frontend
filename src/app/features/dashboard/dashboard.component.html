@@ -159,7 +159,7 @@
 
             <dl class="info-stack">
               <div class="info-row">
-                <dt>Profile</dt>
+                <dt>Name</dt>
                 <dd>{{ userProfile.firstName }} {{ userProfile.lastName }}</dd>
               </div>
               <div class="info-row email-row">
@@ -187,4 +187,9 @@
   </div>
 </section>
 
-
+@if (isUpdateProfileModalOpen()) {
+  <app-update-profile-modal
+    (close)="handleCloseUpdateProfileModal()"
+    (profileUpdated)="handleProfileUpdated()"
+  ></app-update-profile-modal>
+}

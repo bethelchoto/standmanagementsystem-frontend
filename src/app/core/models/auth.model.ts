@@ -35,3 +35,26 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface UpdateUserProfileRequest {
+  dateOfBirth?: string;
+  nationalIdentityNumber?: string;
+  profilePicture?: string; // base64 string when using application/json
+  gender?: 'male' | 'female' | 'other';
+}
+
+export interface UpdateUserProfileResponse {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  role: string;
+  dateOfBirth?: string;
+  nationalIdentityNumber?: string;
+  profilePicture?: string;
+  gender?: 'male' | 'female' | 'other';
+  emailVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
