@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { ApiResponse, LoginRequest, LoginResponse, SignupRequest, AuthUser, UpdateUserProfileRequest, UpdateUserProfileResponse } from '../models/auth.model';
 
 const API_BASE_URL = 'https://standmanagementsystem.vercel.app/api';
+// const API_BASE_URL = 'http://localhost:3000/api';
 
 @Injectable({
   providedIn: 'root'

@@ -29,7 +29,7 @@ export class UpdateProfileModalComponent {
   protected readonly form = this.fb.nonNullable.group({
     dateOfBirth: [''],
     nationalIdentityNumber: [''],
-    gender: [''] as any,
+    gender: [''],
     profilePicture: [null as File | null]
   });
 
@@ -95,7 +95,7 @@ export class UpdateProfileModalComponent {
     // Check if at least one field is provided
     const hasDateOfBirth = formValue.dateOfBirth && formValue.dateOfBirth.trim() !== '';
     const hasNationalId = formValue.nationalIdentityNumber && formValue.nationalIdentityNumber.trim() !== '';
-    const hasGender = formValue.gender && formValue.gender.trim() !== '';
+    const hasGender = formValue.gender && typeof formValue.gender === 'string' && formValue.gender.trim() !== '';
     const hasProfilePicture = formValue.profilePicture !== null;
 
     if (!hasDateOfBirth && !hasNationalId && !hasGender && !hasProfilePicture) {
