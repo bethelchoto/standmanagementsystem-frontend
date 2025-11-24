@@ -33,6 +33,7 @@ export class LoginComponent {
 
   protected readonly loading = signal(false);
   protected readonly submitted = signal(false);
+  protected readonly passwordVisible = signal(false);
   protected readonly serverMessage = signal<AlertState | null>(null);
   protected readonly responseDetails = signal<ResponseDetails | null>(null);
 
@@ -100,4 +101,9 @@ export class LoginComponent {
         }
       });
   }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible.update((value) => !value);
+  }
+
 }

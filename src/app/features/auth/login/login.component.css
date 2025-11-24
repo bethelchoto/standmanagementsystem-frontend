@@ -1,5 +1,40 @@
 @import '../auth-shared.css';
 
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.65rem;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  background: #f4f4f5;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  padding: 0;
+}
+
+.password-toggle:hover {
+  background: #e5e7eb;
+}
+
+.password-toggle svg {
+  pointer-events: none;
+}
+
+.primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .response-summary {
   margin-top: 2rem;
   background: rgba(37, 99, 235, 0.04);
@@ -120,4 +155,5 @@
     flex-direction: column;
     gap: 1rem;
   }
+
 }

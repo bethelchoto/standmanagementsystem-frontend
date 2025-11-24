@@ -1,7 +1,18 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ApiResponse, LoginRequest, LoginResponse, SignupRequest, AuthUser, UpdateUserProfileRequest, UpdateUserProfileResponse } from '../models/auth.model';
+import {
+  ApiResponse,
+  LoginRequest,
+  LoginResponse,
+  SignupRequest,
+  AuthUser,
+  UpdateUserProfileRequest,
+  UpdateUserProfileResponse,
+  BasicResponse,
+  RequestPasswordResetRequest,
+  ResetPasswordRequest
+} from '../models/auth.model';
 
 const API_BASE_URL = 'https://standmanagementsystem.vercel.app/api';
 // const API_BASE_URL = 'http://localhost:3000/api';
@@ -59,6 +70,14 @@ export class AuthApiService {
         { headers }
       );
     }
+  }
+
+  requestPasswordReset(payload: RequestPasswordResetRequest): Observable<BasicResponse> {
+    return this.http.post<BasicResponse>(`${API_BASE_URL}/auth/forgot-password`, payload);
+  }
+
+  resetPassword(payload: ResetPasswordRequest): Observable<BasicResponse> {
+    return this.http.post<BasicResponse>(`${API_BASE_URL}/auth/reset-password`, payload);
   }
 }
 

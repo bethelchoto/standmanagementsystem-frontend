@@ -48,3 +48,18 @@ export interface UpdateUserProfileRequest {
 
 export type UpdateUserProfileResponse = AuthUser;
 
+export interface BasicResponse {
+  success: boolean;
+  message: string;
+}
+
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  verificationCode: string;
+  newPassword: string;
+}
+
