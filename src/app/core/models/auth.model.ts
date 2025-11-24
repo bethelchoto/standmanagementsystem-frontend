@@ -13,15 +13,19 @@ export interface SignupRequest {
 }
 
 export interface AuthUser {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   email: string;
   phoneNumber: string;
   role: string;
-  isVerified?: boolean;
+  emailVerified?: boolean | number;
   createdAt?: string;
   updatedAt?: string;
+  dateOfBirth?: string;
+  nationalIdentityNumber?: string;
+  profilePicture?: string;
+  gender?: 'male' | 'female' | 'other';
 }
 
 export interface LoginResponse {
@@ -42,19 +46,5 @@ export interface UpdateUserProfileRequest {
   gender?: 'male' | 'female' | 'other';
 }
 
-export interface UpdateUserProfileResponse {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  dateOfBirth?: string;
-  nationalIdentityNumber?: string;
-  profilePicture?: string;
-  gender?: 'male' | 'female' | 'other';
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export type UpdateUserProfileResponse = AuthUser;
 

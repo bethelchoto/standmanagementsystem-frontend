@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, EventEmitter, inject, OnInit, Output, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { UserProfileService } from '../../../core/services/user-profile.service';
 
 type AlertState = { type: 'success' | 'error'; text: string };
 
@@ -13,9 +14,10 @@ type AlertState = { type: 'success' | 'error'; text: string };
   templateUrl: './update-profile-modal.component.html',
   styleUrls: ['./update-profile-modal.component.css']
 })
-export class UpdateProfileModalComponent {
+export class UpdateProfileModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly authApi = inject(AuthApiService);
+  private readonly userProfileService = inject(UserProfileService);
 
   @Output() close = new EventEmitter<void>();
   @Output() profileUpdated = new EventEmitter<void>();
@@ -32,6 +34,10 @@ export class UpdateProfileModalComponent {
     gender: [''],
     profilePicture: [null as File | null]
   });
+
+  ngOnInit(): void {
+    this.prefillFormFromStoredProfile();
+  }
 
   protected handleFileSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -136,6 +142,9 @@ export class UpdateProfileModalComponent {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (response) => {
+          if (response.data) {
+            this.userProfileService.saveProfile(response.data);
+          }
           this.serverMessage.set({
             type: 'success',
             text: response.message || 'Profile updated successfully!'
@@ -152,5 +161,23 @@ export class UpdateProfileModalComponent {
           this.serverMessage.set({ type: 'error', text: errorMessage });
         }
       });
+  }
+
+  private prefillFormFromStoredProfile(): void {
+    const storedProfile = this.userProfileService.getStoredProfile();
+
+    if (!storedProfile) {
+      return;
+    }
+
+    this.form.patchValue({
+      dateOfBirth: storedProfile.dateOfBirth ? storedProfile.dateOfBirth.slice(0, 10) : '',
+      nationalIdentityNumber: storedProfile.nationalIdentityNumber ?? '',
+      gender: storedProfile.gender ?? ''
+    });
+
+    if (storedProfile.profilePicture) {
+      this.previewUrl.set(this.userProfileService.buildAvatarUrl(storedProfile.profilePicture));
+    }
   }
 }

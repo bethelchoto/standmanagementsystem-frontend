@@ -4,6 +4,8 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { UpdateProfileModalComponent } from './update-profile-modal/update-profile-modal.component';
+import { UserProfile } from '../../core/models/user-profile.model';
+import { UserProfileService } from '../../core/services/user-profile.service';
 
 type SummaryCard = {
   label: string;
@@ -60,19 +62,6 @@ type SidebarNavItem = {
   route?: string;
 };
 
-type UserProfile = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  role: string;
-  emailVerified: boolean;
-  createdAt: string;
-  updatedAt: string;
-  avatarUrl: string;
-};
-
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -81,7 +70,9 @@ type UserProfile = {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  constructor(private readonly router: Router) {}
+  constructor(private readonly router: Router, private readonly userProfileService: UserProfileService) {
+    this.userProfile = this.loadUserProfile();
+  }
 
   @ViewChild('profileMenu', { static: false }) private profileMenuRef?: ElementRef<HTMLElement>;
 
@@ -100,18 +91,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     { label: 'Settings', icon: 'settings', route: 'settings' },
   ];
 
-  protected readonly userProfile: UserProfile = {
-    id: '34a86d54-bfa8-11f0-ac0c-5a387c688d6c',
-    firstName: 'Tale',
-    lastName: 'Mufundirwa',
-    email: 'mufundirwaebenezert@gmail.com'.toLowerCase(),
-    phoneNumber: '+250789564612',
-    role: 'general',
-    emailVerified: true,
-    createdAt: '2025-11-12T07:16:00.000Z',
-    updatedAt: '2025-11-12T07:18:13.000Z',
-    avatarUrl: 'https://i.pravatar.cc/160?img=5'
-  };
+  protected userProfile!: UserProfile;
 
   protected readonly salesSummaryCards: SummaryCard[] = [
     { label: 'Total Sales', value: '$1k', helper: '+15% from yesterday', accent: 'sunset' },
@@ -290,13 +270,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   protected handleProfileUpdated(): void {
-    // Refresh user profile data here if needed
-    // For now, we'll just close the modal
-    // You can add API call to fetch updated profile data
+    this.refreshUserProfile();
     console.info('Profile updated successfully');
   }
 
   protected handleLogout(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('sms_auth_token');
+      localStorage.removeItem('sms_user_profile');
+    }
+
     this.router.navigate(['/auth/login']);
   }
 
@@ -344,5 +327,29 @@ export class DashboardComponent implements OnInit, OnDestroy {
     }
 
     this.activeView = 'dashboard';
+  }
+
+  private loadUserProfile(): UserProfile {
+    return this.userProfileService.getResolvedProfile() ?? this.buildFallbackUserProfile();
+  }
+
+  private buildFallbackUserProfile(): UserProfile {
+    return {
+      id: '34a86d54-bfa8-11f0-ac0c-5a387c688d6c',
+      firstName: 'Tale',
+      lastName: 'Mufundirwa',
+      email: 'mufundirwaebenezert@gmail.com',
+      phoneNumber: '+250789564612',
+      role: 'general',
+      emailVerified: true,
+      createdAt: '2025-11-12T07:16:00.000Z',
+      updatedAt: '2025-11-12T07:18:13.000Z',
+      avatarUrl: 'https://i.pravatar.cc/160?img=5',
+      nationalIdentityNumber: '70-2004605H38'
+    };
+  }
+
+  private refreshUserProfile(): void {
+    this.userProfile = this.loadUserProfile();
   }
 }

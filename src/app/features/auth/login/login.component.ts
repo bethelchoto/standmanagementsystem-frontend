@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthApiService } from '../../../core/services/auth-api.service';
+import { UserProfileService } from '../../../core/services/user-profile.service';
 import type { ApiResponse, LoginRequest, LoginResponse } from '../../../core/models/auth.model';
 import type { HttpResponse } from '@angular/common/http';
 
@@ -28,6 +29,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly authApi = inject(AuthApiService);
   private readonly router = inject(Router);
+  private readonly userProfileService = inject(UserProfileService);
 
   protected readonly loading = signal(false);
   protected readonly submitted = signal(false);
@@ -73,6 +75,7 @@ export class LoginComponent {
             .map((key) => ({ key, value: response.headers.get(key) }));
 
           localStorage.setItem('sms_auth_token', body.data.token);
+          this.userProfileService.saveProfile(body.data.user);
 
           this.responseDetails.set({
             status: response.status,
