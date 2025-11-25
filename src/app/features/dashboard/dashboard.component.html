@@ -1,4 +1,4 @@
-<section class="dashboard-shell">
+<section class="dashboard-shell" [class.map-view]="activeView === 'map'">
   <aside class="sidebar">
     <div class="brand">
       <div class="logo">
@@ -28,7 +28,9 @@
             </svg>
           </span>
           <span>{{ item.label }}</span>
-          @if (item.badge) {
+          @if (item.label === 'Stands') {
+            <span class="badge">{{ availableStandsCount() }}</span>
+          } @else if (item.badge) {
             <span class="badge">{{ item.badge }}</span>
           }
         </button>
@@ -45,13 +47,24 @@
     </div>
   </aside>
 
-  <div class="main-panel">
+  <div
+    class="main-panel"
+    [class.map-active]="activeView === 'map'"
+    [class.settings-view]="activeView === 'settings'">
     <header class="main-header">
       <div>
         @if (activeView === 'dashboard') {
           <p class="eyebrow">Dashboard</p>
           <h1>Stand Management</h1>
           <p class="helper">Monitor stands, orders, and payments in one place.</p>
+        } @else if (activeView === 'map') {
+          <p class="eyebrow">Map</p>
+          <h1>Stand Map</h1>
+          <p class="helper">View all stands and their availability status.</p>
+        } @else if (activeView === 'stands') {
+          <p class="eyebrow">Stands</p>
+          <h1>Available Stands</h1>
+          <p class="helper">Showing {{ availableStandsCount() }} stands currently available.</p>
         } @else {
           <p class="eyebrow">Account</p>
           <h1>Profile &amp; Settings</h1>
@@ -89,7 +102,95 @@
       </div>
     </header>
 
-    @if (activeView === 'dashboard') {
+    @if (activeView === 'map') {
+      <section class="map-layout">
+        @if (loadingStands()) {
+          <div class="loading-state">
+            <p>Loading stands...</p>
+          </div>
+        } @else {
+          <div class="map-container">
+            <div class="map-header">
+              <h2 class="map-title">Downtown Avenue</h2>
+            </div>
+            <div class="stands-grid">
+              @for (stand of stands(); track stand.id) {
+                <div class="stand-card" [class.sold]="isStandSold(stand)" [class.available]="!isStandSold(stand)">
+                  <div class="stand-info">
+                    <p class="stand-name">{{ stand.name || 'Plot 21 - City Center' }}</p>
+                    <div class="stand-number" [class.sold-text]="isStandSold(stand)">
+                      @if (isStandSold(stand)) {
+                        <strong>SOLD</strong>
+                      } @else {
+                        <strong>{{ getStandNumber(stand) ?? 'null' }}</strong>
+                      }
+                    </div>
+                    <p class="stand-status" [class.sold-text]="isStandSold(stand)">
+                      {{ isStandSold(stand) ? 'sold' : 'available' }}
+                    </p>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </section>
+    } @else if (activeView === 'stands') {
+      <section class="stands-view">
+        <header class="stands-view__header">
+          <div>
+            <p class="eyebrow">Inventory</p>
+            <h2>{{ availableStandsCount() }} stands available</h2>
+            <p class="helper">Only stands with status “available” are listed here.</p>
+          </div>
+          <button type="button" class="ghost" (click)="handleRefreshStands()" [disabled]="loadingStands()">Refresh</button>
+        </header>
+
+        @if (loadingStands()) {
+          <div class="loading-state">
+            <p>Loading stands...</p>
+          </div>
+        } @else if (getAvailableStands().length) {
+          <div class="stands-collection">
+            @for (stand of getAvailableStands(); track stand.id) {
+              <article class="stand-card available stand-card--details">
+                <header class="stand-card__header">
+                  <div>
+                    <p class="stand-name">{{ stand.name || 'Unnamed Stand' }}</p>
+                    <span class="stand-location">{{ stand.location || '—' }}</span>
+                  </div>
+                  <span class="stand-number">
+                    <strong>{{ getStandNumber(stand) ?? '—' }}</strong>
+                  </span>
+                </header>
+                <dl class="stand-meta">
+                  <div>
+                    <dt>Type</dt>
+                    <dd>{{ stand.type || '—' }}</dd>
+                  </div>
+                  <div>
+                    <dt>Price</dt>
+                    <dd>{{ stand.price | currency: 'USD' : 'symbol' : '1.0-0' }}</dd>
+                  </div>
+                  <div>
+                    <dt>Size</dt>
+                    <dd>{{ stand.size ? stand.size + ' sqm' : '—' }}</dd>
+                  </div>
+                </dl>
+                <footer class="stand-card__footer">
+                  <span>Updated {{ formatDate(stand.updatedAt) }}</span>
+                </footer>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="empty-state">
+            <h3>No available stands</h3>
+            <p>All stands are currently allocated. Check back later or refresh.</p>
+          </div>
+        }
+      </section>
+    } @else if (activeView === 'dashboard') {
       <section class="analytics-grid">
         <article class="panel today-sales">
           <header>

@@ -2,10 +2,12 @@ import { CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from '
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, finalize } from 'rxjs/operators';
 import { UpdateProfileModalComponent } from './update-profile-modal/update-profile-modal.component';
 import { UserProfile } from '../../core/models/user-profile.model';
 import { UserProfileService } from '../../core/services/user-profile.service';
+import { StandsService } from '../../core/services/stands.service';
+import { Stand } from '../../core/models/stand.model';
 
 type SummaryCard = {
   label: string;
@@ -70,20 +72,27 @@ type SidebarNavItem = {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  constructor(private readonly router: Router, private readonly userProfileService: UserProfileService) {
+  constructor(
+    private readonly router: Router,
+    private readonly userProfileService: UserProfileService,
+    private readonly standsService: StandsService
+  ) {
     this.userProfile = this.loadUserProfile();
   }
 
   @ViewChild('profileMenu', { static: false }) private profileMenuRef?: ElementRef<HTMLElement>;
 
-  protected activeView: 'dashboard' | 'settings' = 'dashboard';
+  protected activeView: 'dashboard' | 'settings' | 'map' | 'stands' = 'dashboard';
   protected isUserMenuOpen = false;
   protected isUpdateProfileModalOpen = signal(false);
+  protected stands = signal<Stand[]>([]);
+  protected loadingStands = signal(false);
+  protected availableStandsCount = signal(0);
   private routerSubscription?: Subscription;
 
   protected readonly sidebarNav: SidebarNavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', active: true, route: 'dashboard' },
-    { label: 'Stands', icon: 'stands', badge: '12' },
+    { label: 'Stands', icon: 'stands', route: 'stands' },
     { label: 'Buyers', icon: 'buyers' },
     { label: 'Payments', icon: 'payments', badge: '4' },
     { label: 'Reports', icon: 'reports' },
@@ -158,7 +167,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     this.routerSubscription = this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
-      .subscribe((event) => this.syncActiveViewWithRoute(event.urlAfterRedirects));
+      .subscribe((event) => {
+        this.syncActiveViewWithRoute(event.urlAfterRedirects);
+        if (this.shouldLoadStandsForUrl(event.urlAfterRedirects)) {
+          this.loadStands();
+        }
+      });
+
+    if (this.shouldLoadStandsForUrl(this.router.url)) {
+      this.loadStands();
+    }
   }
 
   ngOnDestroy(): void {
@@ -326,7 +344,63 @@ export class DashboardComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (url.includes('/stands')) {
+      this.activeView = 'stands';
+      return;
+    }
+
+    if (url.includes('/map')) {
+      this.activeView = 'map';
+      return;
+    }
+
     this.activeView = 'dashboard';
+  }
+
+  private filterAvailableStands(stands: Stand[]): Stand[] {
+    return stands.filter((stand) => this.isStandAvailable(stand));
+  }
+
+  private shouldLoadStandsForUrl(url: string): boolean {
+    return ['/map', '/stands', '/dashboard', '/settings'].some((segment) => url.includes(segment));
+  }
+
+  protected handleRefreshStands(): void {
+    this.loadStands();
+  }
+
+  private loadStands(): void {
+    this.loadingStands.set(true);
+    this.standsService
+      .getStands()
+      .pipe(finalize(() => this.loadingStands.set(false)))
+      .subscribe({
+        next: (stands) => {
+          this.stands.set(stands);
+          this.availableStandsCount.set(this.filterAvailableStands(stands).length);
+        },
+        error: (error) => {
+          console.error('Error loading stands:', error);
+          this.stands.set([]);
+          this.availableStandsCount.set(0);
+        }
+      });
+  }
+
+  protected isStandSold(stand: Stand): boolean {
+    return stand.status?.toLowerCase() === 'sold';
+  }
+
+  protected isStandAvailable(stand: Stand): boolean {
+    return stand.status?.toLowerCase() === 'available';
+  }
+
+  protected getStandNumber(stand: Stand): string | null {
+    return stand.standNumber || null;
+  }
+
+  protected getAvailableStands(): Stand[] {
+    return this.filterAvailableStands(this.stands());
   }
 
   private loadUserProfile(): UserProfile {

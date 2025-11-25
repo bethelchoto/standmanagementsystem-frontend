@@ -1,34 +1,41 @@
 :host {
   display: block;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: linear-gradient(135deg, #e0f2ff 0%, #fdf2ff 60%, #fef3c7 100%);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #0f172a;
-  padding: 2rem;
+  padding: 1.5rem;
+  box-sizing: border-box;
 }
 
 .dashboard-shell {
   display: flex;
-  gap: 1.5rem;
-  min-height: calc(100vh - 4rem);
+  gap: 1rem;
+  height: calc(100vh - 4rem);
+}
+
+.dashboard-shell.map-view {
+  height: calc(100vh - 4rem);
+  overflow: hidden;
 }
 
 .sidebar {
   width: 260px;
   background: linear-gradient(180deg, #2d1e87, #402cc9);
   border-radius: 28px;
-  padding: 2rem 1.75rem;
+  padding: 1.5rem;
   color: #fff;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
   box-shadow: 0 20px 45px rgba(64, 44, 201, 0.35);
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .logo {
@@ -55,32 +62,41 @@
   gap: 0.15rem;
 }
 
+.brand-copy strong {
+  font-size: 1rem;
+}
+
+.brand-copy .eyebrow {
+  font-size: 0.6rem;
+}
+
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.35rem;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
+  gap: 0.55rem;
   width: 100%;
   border: none;
   background: transparent;
   color: inherit;
   font: inherit;
   font-weight: 500;
-  padding: 0.65rem 0.9rem;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .nav-link .icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.12);
   display: grid;
   place-items: center;
@@ -108,10 +124,10 @@
 .sidebar-card {
   margin-top: auto;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 1.25rem;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  border-radius: 18px;
+  padding: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.3;
 }
 
 .sidebar-card button {
@@ -138,12 +154,12 @@
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   font-weight: 600;
-  padding: 0.9rem 1rem;
-  border-radius: 16px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.6rem;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -163,11 +179,22 @@
   flex: 1;
   background: #fff;
   border-radius: 32px;
-  padding: 2.5rem;
+  padding: 1.75rem;
   box-shadow: 0 25px 60px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.main-panel.settings-view {
+  overflow-y: hidden;
+}
+
+.main-panel.map-active {
+  overflow: hidden;
+  height: calc(100vh - 4rem);
 }
 
 .main-header {
@@ -391,8 +418,8 @@
   max-width: 980px;
   display: grid;
   grid-template-columns: minmax(300px, 360px) minmax(360px, 1fr);
-  gap: 2.5rem;
-  padding: 3rem;
+  gap: 1.75rem;
+  padding: 2rem;
   border-radius: 56px;
   background: #fff;
   box-shadow: 0 55px 80px rgba(15, 23, 42, 0.08);
@@ -401,9 +428,9 @@
 
 .profile-showcase__photo {
   width: 100%;
-  max-width: 240px;
+  max-width: 180px;
   aspect-ratio: 1 / 1;
-  border-radius: 46px;
+  border-radius: 32px;
   overflow: hidden;
   background: #f1f5f9;
   box-shadow: inset 0 0 0 1px #e2e8f0;
@@ -419,7 +446,7 @@
 .profile-showcase__details {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
 .profile-showcase__details h2 {
@@ -488,18 +515,18 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 0.8rem;
 }
 
 .info-row {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.2rem;
 }
 
 .info-row dt {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: #94a3b8;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -507,7 +534,7 @@
 
 .info-row dd {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #0f172a;
   font-weight: 600;
   line-height: 1.3;
@@ -1044,6 +1071,219 @@
   }
 }
 
+.map-layout {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.map-container {
+  width: 100%;
+  max-width: 1200px;
+  background: #e5e7eb;
+  border-radius: 24px;
+  padding: 1rem 1rem 1rem 3rem;
+  position: relative;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.map-header {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.map-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1rem 0;
+}
+
+.block-label {
+  position: absolute;
+  left: -2.75rem;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  transform-origin: center;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+.stands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: 120px;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  max-width: 100%;
+}
+
+.stand-card {
+  background: #fff;
+  border: 2px solid #000;
+  border-radius: 12px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stand-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stand-card.available {
+  background: #dcfce7;
+  border-color: #000;
+}
+
+.stand-card.sold {
+  background: #fee2e2;
+  border-color: #000;
+}
+
+.stand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+}
+
+.stand-name {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.stand-number {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stand-number strong {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.stand-number.sold-text strong {
+  color: #dc2626;
+}
+
+.stand-status {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #0f172a;
+  text-transform: lowercase;
+}
+
+.stand-status.sold-text {
+  color: #dc2626;
+}
+
+.stands-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.stands-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.stands-collection {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.stand-card--details {
+  border-width: 1px;
+  min-height: auto;
+  gap: 0.75rem;
+}
+
+.stand-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.stand-location {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.stand-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.5rem 0 0.75rem 0;
+}
+
+.stand-meta div {
+  flex: 1;
+}
+
+.stand-meta dt {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.stand-meta dd {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.stand-card__footer {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.empty-state {
+  border: 1px dashed #cbd5f5;
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  background: #f8fafc;
+}
+
+.empty-state h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
 @media (max-width: 768px) {
   .main-header {
     flex-direction: column;
@@ -1064,5 +1304,26 @@
 
   .dashboard-shell {
     min-height: auto;
+  }
+
+  .map-container {
+    height: 100%;
+    padding: 1.25rem;
+  }
+
+  .stands-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .block-label {
+    position: static;
+    transform: none;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+
+  .map-container {
+    padding: 1.5rem;
   }
 }

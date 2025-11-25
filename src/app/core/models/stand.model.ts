@@ -10,7 +10,7 @@ export interface StandUser {
 export interface Stand {
   id: string;
   name: string;
-  standNumber: string;
+  standNumber: string | null;
   type: string;
   price: number;
   size: number;
