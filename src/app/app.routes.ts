@@ -14,10 +14,6 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
-  {
-    path: 'map',
-    loadComponent: () => import('./features/map/map.component').then((m) => m.MapComponent)
-  },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   {
     path: 'auth',

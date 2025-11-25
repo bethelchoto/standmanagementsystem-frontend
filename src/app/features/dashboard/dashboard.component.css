@@ -759,6 +759,19 @@
   grid-template-columns: 1.2fr 1.4fr 1fr;
 }
 
+.map-panel header {
+  margin-bottom: 0.5rem;
+}
+
+.map-panel h2 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.map-panel app-map-page {
+  width: 100%;
+}
+
 .revenue-bars {
   display: flex;
   align-items: flex-end;

@@ -1,0 +1,44 @@
+<path class="map-state" [attr.d]="state.path" [style.fill]="state.color" [class.active]="isActive(state)"></path>
+            <circle
+              class="state-marker"
+              [attr.cx]="state.centroid.x"
+              [attr.cy]="state.centroid.y"
+              r="6"
+              [style.fill]="state.color"
+            ></circle>
+          }
+=======
+          @for (state of mapStates; track state.id) {
+            <path class="map-state" [attr.d]="state.path" [style.fill]="state.color" [class.active]="isActive(state)"></path>
+            <circle
+              class="state-marker"
+              [attr.cx]="state.centroid.x"
+              [attr.cy]="state.centroid.y"
+              r="6"
+              [style.fill]="state.color"
+            ></circle>
+          }
+          
+          <!-- Render stands as rectangles arranged in grid -->
+          <ng-container *ngFor="let stand of stands; let i = index">
+            <rect
+              [attr.x]="20 + (i % 8) * 90"
+              [attr.y]="350 - Math.floor(i / 8) * 55"
+              width="80"
+              height="50"
+              fill="#60a5fa"
+              stroke="#3b82f6"
+              stroke-width="2"
+              rx="4"
+              ry="4"
+            ></rect>
+            <text
+              [attr.x]="25 + (i % 8) * 90"
+              [attr.y]="380 - Math.floor(i / 8) * 55"
+              font-size="12"
+              fill="white"
+              font-family="Arial, sans-serif"
+            >
+              {{ stand.standNumber }}
+            </text>
+          </ng-container>
