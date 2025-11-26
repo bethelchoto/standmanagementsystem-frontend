@@ -1,5 +1,6 @@
 import { CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { filter, finalize } from 'rxjs/operators';
@@ -8,6 +9,7 @@ import { UserProfile } from '../../core/models/user-profile.model';
 import { UserProfileService } from '../../core/services/user-profile.service';
 import { StandsService } from '../../core/services/stands.service';
 import { Stand } from '../../core/models/stand.model';
+import * as XLSX from 'xlsx';
 
 type SummaryCard = {
   label: string;
@@ -64,10 +66,40 @@ type SidebarNavItem = {
   route?: string;
 };
 
+type SingleStandForm = {
+  name: string;
+  standNumber: string;
+  type: string;
+  price: number | null;
+  size: number | null;
+  location: string;
+  status: string;
+  description: string;
+};
+
+type StandPayload = {
+  name?: string;
+  standNumber?: string;
+  type?: string;
+  price?: number | null;
+  size?: number | null;
+  location?: string;
+  status?: string;
+  description?: string;
+};
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgClass, NgSwitch, NgSwitchCase, NgSwitchDefault, UpdateProfileModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgClass,
+    NgSwitch,
+    NgSwitchCase,
+    NgSwitchDefault,
+    UpdateProfileModalComponent
+  ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
@@ -81,6 +113,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   @ViewChild('profileMenu', { static: false }) private profileMenuRef?: ElementRef<HTMLElement>;
+  @ViewChild('bulkFileInput', { static: false }) private bulkFileInputRef?: ElementRef<HTMLInputElement>;
 
   protected activeView: 'dashboard' | 'settings' | 'map' | 'stands' = 'dashboard';
   protected isUserMenuOpen = false;
@@ -88,7 +121,22 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected stands = signal<Stand[]>([]);
   protected loadingStands = signal(false);
   protected availableStandsCount = signal(0);
+  protected standSearchTerm = '';
+  protected searchingStand = false;
+  protected standSearchError: string | null = null;
+  protected standSearchResult: Stand | null = null;
+  protected isAddStandModalOpen = signal(false);
+  protected addStandMode: 'single' | 'bulk' = 'single';
+  protected singleStandForm = this.buildDefaultSingleStandForm();
+  protected singleStandSubmitting = false;
+  protected singleStandError: string | null = null;
+  protected singleStandSuccess: string | null = null;
+  protected bulkUploading = false;
+  protected bulkUploadError: string | null = null;
+  protected bulkUploadSuccess: string | null = null;
+  protected bulkUploadCount = 0;
   private routerSubscription?: Subscription;
+  private bulkUploadFile?: File;
 
   protected readonly sidebarNav: SidebarNavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', active: true, route: 'dashboard' },
@@ -330,6 +378,148 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isUserMenuOpen = false;
   }
 
+  protected handleStandSearch(event?: Event): void {
+    event?.preventDefault();
+    const term = this.standSearchTerm.trim();
+
+    if (!term) {
+      this.standSearchError = 'Enter a stand ID to search.';
+      this.standSearchResult = null;
+      return;
+    }
+
+    this.searchingStand = true;
+    this.standSearchError = null;
+    this.standSearchResult = null;
+
+    this.standsService
+      .getStandById(term)
+      .pipe(finalize(() => (this.searchingStand = false)))
+      .subscribe({
+        next: (stand) => {
+          this.standSearchResult = stand;
+        },
+        error: (error) => {
+          if (error?.status === 404) {
+            this.standSearchError = 'Stand not found. Double-check the ID and try again.';
+            return;
+          }
+
+          this.standSearchError = 'Unable to search for that stand right now.';
+        }
+      });
+  }
+
+  protected clearStandSearch(): void {
+    this.standSearchTerm = '';
+    this.standSearchResult = null;
+    this.standSearchError = null;
+  }
+
+  protected openAddStandModal(mode: 'single' | 'bulk' = 'single'): void {
+    this.addStandMode = mode;
+    this.isAddStandModalOpen.set(true);
+  }
+
+  protected closeAddStandModal(): void {
+    this.isAddStandModalOpen.set(false);
+    this.resetAddStandState();
+  }
+
+  protected setAddStandMode(mode: 'single' | 'bulk'): void {
+    if (this.addStandMode === mode) {
+      return;
+    }
+
+    this.addStandMode = mode;
+    this.clearAddStandFeedback();
+  }
+
+  protected handleSingleStandSubmit(event: Event): void {
+    event.preventDefault();
+
+    const payload = this.buildSingleStandPayload();
+
+    if (!payload) {
+      this.singleStandError = 'Please fill in all required stand details.';
+      this.singleStandSuccess = null;
+      return;
+    }
+
+    this.singleStandSubmitting = true;
+    this.singleStandError = null;
+    this.singleStandSuccess = null;
+
+    this.standsService
+      .createStand(payload)
+      .pipe(finalize(() => (this.singleStandSubmitting = false)))
+      .subscribe({
+        next: (stand) => {
+          this.singleStandSuccess = `Stand ${stand.standNumber || stand.name} added successfully.`;
+          this.singleStandForm = this.buildDefaultSingleStandForm();
+          this.loadStands();
+        },
+        error: () => {
+          this.singleStandError = 'Failed to create stand. Please try again.';
+        }
+      });
+  }
+
+  protected handleBulkFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.bulkUploadFile = input?.files?.[0];
+    this.bulkUploadError = null;
+    this.bulkUploadSuccess = null;
+    this.bulkUploadCount = 0;
+  }
+
+  protected async handleBulkUpload(event: Event): Promise<void> {
+    event.preventDefault();
+
+    if (!this.bulkUploadFile) {
+      this.bulkUploadError = 'Select a CSV or Excel file to continue.';
+      return;
+    }
+
+    this.bulkUploading = true;
+    this.bulkUploadError = null;
+    this.bulkUploadSuccess = null;
+
+    let standsPayload: Record<string, unknown>[];
+    try {
+      standsPayload = await this.parseSpreadsheet(this.bulkUploadFile);
+    } catch (error) {
+      this.bulkUploading = false;
+      this.bulkUploadError =
+        error instanceof Error ? error.message : 'Unable to read the uploaded file.';
+      return;
+    }
+
+    if (!standsPayload.length) {
+      this.bulkUploading = false;
+      this.bulkUploadError = 'No valid rows were found in the uploaded file.';
+      return;
+    }
+
+    this.standsService
+      .bulkCreateStands({ stands: standsPayload })
+      .pipe(finalize(() => (this.bulkUploading = false)))
+      .subscribe({
+        next: () => {
+          this.bulkUploadCount = standsPayload.length;
+          this.bulkUploadSuccess = `Uploaded ${standsPayload.length} stand${
+            standsPayload.length === 1 ? '' : 's'
+          } successfully.`;
+          this.bulkUploadFile = undefined;
+          this.resetBulkFileInput();
+          this.loadStands();
+        },
+        error: () => {
+          this.bulkUploadError = 'Bulk upload failed. Please verify the template and try again.';
+        }
+      });
+  }
+
   private buildUserInitials(profile: UserProfile): string {
     const firstInitial = profile.firstName?.charAt(0) ?? '';
     const lastInitial = profile.lastName?.charAt(0) ?? '';
@@ -401,6 +591,154 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   protected getAvailableStands(): Stand[] {
     return this.filterAvailableStands(this.stands());
+  }
+
+  private buildDefaultSingleStandForm(): SingleStandForm {
+    return {
+      name: '',
+      standNumber: '',
+      type: '',
+      price: null,
+      size: null,
+      location: '',
+      status: 'available',
+      description: ''
+    };
+  }
+
+  private buildSingleStandPayload(): Record<string, unknown> | null {
+    const name = this.singleStandForm.name.trim();
+    const standNumber = this.singleStandForm.standNumber.trim();
+    const type = this.singleStandForm.type.trim();
+    if (
+      !this.hasNumericValue(this.singleStandForm.price) ||
+      !this.hasNumericValue(this.singleStandForm.size)
+    ) {
+      return null;
+    }
+
+    const price = Number(this.singleStandForm.price);
+    const size = Number(this.singleStandForm.size);
+    const location = this.singleStandForm.location.trim();
+    const status = this.singleStandForm.status.trim() || 'available';
+    const description = this.singleStandForm.description.trim();
+
+    if (
+      !name ||
+      !standNumber ||
+      !type ||
+      Number.isNaN(price) ||
+      Number.isNaN(size) ||
+      !location ||
+      !status
+    ) {
+      return null;
+    }
+
+    return {
+      name,
+      standNumber,
+      type,
+      price,
+      size,
+      location,
+      status,
+      description
+    };
+  }
+
+  private resetAddStandState(): void {
+    this.singleStandForm = this.buildDefaultSingleStandForm();
+    this.singleStandError = null;
+    this.singleStandSuccess = null;
+    this.singleStandSubmitting = false;
+    this.bulkUploading = false;
+    this.bulkUploadError = null;
+    this.bulkUploadSuccess = null;
+    this.bulkUploadCount = 0;
+    this.bulkUploadFile = undefined;
+    this.resetBulkFileInput();
+  }
+
+  private clearAddStandFeedback(): void {
+    this.singleStandError = null;
+    this.singleStandSuccess = null;
+    this.bulkUploadError = null;
+    this.bulkUploadSuccess = null;
+  }
+
+  private resetBulkFileInput(): void {
+    if (this.bulkFileInputRef?.nativeElement) {
+      this.bulkFileInputRef.nativeElement.value = '';
+    }
+  }
+
+  private async parseSpreadsheet(file: File): Promise<StandPayload[]> {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+
+    if (!workbook.SheetNames.length) {
+      throw new Error('No sheets were found in the uploaded file.');
+    }
+
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
+      defval: '',
+      raw: false,
+      blankrows: false
+    });
+
+    return rows
+      .map((row) => this.normalizeStandPayload(row))
+      .filter((payload) => payload.name && payload.standNumber);
+  }
+
+  private normalizeStandPayload(row: Record<string, unknown>): StandPayload {
+    const toNumber = (value: unknown): number | null => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : null;
+    };
+
+    const payload: StandPayload = {
+      name: this.toTrimmedString(row['name']),
+      standNumber: this.toTrimmedString(row['standNumber']),
+      type: this.toTrimmedString(row['type']),
+      price: toNumber(row['price']),
+      size: toNumber(row['size']),
+      location: this.toTrimmedString(row['location']),
+      status: this.toTrimmedString(row['status']) || 'available',
+      description: this.toTrimmedString(row['description'])
+    };
+
+    if (payload.price === null) {
+      delete payload.price;
+    }
+
+    if (payload.size === null) {
+      delete payload.size;
+    }
+
+    return payload;
+  }
+
+  private toTrimmedString(value: unknown): string {
+    if (typeof value === 'string') {
+      return value.trim();
+    }
+
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    return String(value).trim();
+  }
+
+  private hasNumericValue(value: unknown): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    return !Number.isNaN(Number(value));
   }
 
   private loadUserProfile(): UserProfile {

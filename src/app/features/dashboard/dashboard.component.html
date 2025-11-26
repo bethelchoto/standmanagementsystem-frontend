@@ -72,6 +72,24 @@
         }
       </div>
       <div class="header-tools">
+        @if (activeView === 'stands') {
+          <form class="stand-search__form" (ngSubmit)="handleStandSearch($event)" novalidate>
+            <label>
+              <span class="sr-only">Stand ID</span>
+              <input
+                type="text"
+                name="standSearchTerm"
+                placeholder="Search stand ID..."
+                [(ngModel)]="standSearchTerm"
+                [disabled]="searchingStand"
+              />
+            </label>
+            <button type="submit" [disabled]="searchingStand || !standSearchTerm.trim()">Search</button>
+            @if (standSearchTerm || standSearchResult || standSearchError) {
+              <button type="button" class="ghost" (click)="clearStandSearch()">Clear</button>
+            }
+          </form>
+        }
         <button type="button" class="icon-button" aria-label="Notifications">
           <svg viewBox="0 0 24 24" role="presentation">
             <path d="M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zm8-6v-5a8 8 0 0 0-6-7.75V2a2 2 0 0 0-4 0v1.25A8 8 0 0 0 4 11v5l-2 2v1h20v-1l-2-2z" />
@@ -142,52 +160,92 @@
             <p class="eyebrow">Inventory</p>
             <h2>{{ availableStandsCount() }} stands available</h2>
             <p class="helper">Only stands with status “available” are listed here.</p>
+            @if (standSearchError) {
+              <p class="stand-search__error">{{ standSearchError }}</p>
+            }
           </div>
-          <button type="button" class="ghost" (click)="handleRefreshStands()" [disabled]="loadingStands()">Refresh</button>
+          <button type="button" class="ghost primary" (click)="openAddStandModal()" [disabled]="loadingStands()">Add stand</button>
         </header>
 
         @if (loadingStands()) {
           <div class="loading-state">
             <p>Loading stands...</p>
           </div>
-        } @else if (getAvailableStands().length) {
-          <div class="stands-collection">
-            @for (stand of getAvailableStands(); track stand.id) {
-              <article class="stand-card available stand-card--details">
-                <header class="stand-card__header">
-                  <div>
-                    <p class="stand-name">{{ stand.name || 'Unnamed Stand' }}</p>
-                    <span class="stand-location">{{ stand.location || '—' }}</span>
-                  </div>
-                  <span class="stand-number">
-                    <strong>{{ getStandNumber(stand) ?? '—' }}</strong>
-                  </span>
-                </header>
-                <dl class="stand-meta">
-                  <div>
-                    <dt>Type</dt>
-                    <dd>{{ stand.type || '—' }}</dd>
-                  </div>
-                  <div>
-                    <dt>Price</dt>
-                    <dd>{{ stand.price | currency: 'USD' : 'symbol' : '1.0-0' }}</dd>
-                  </div>
-                  <div>
-                    <dt>Size</dt>
-                    <dd>{{ stand.size ? stand.size + ' sqm' : '—' }}</dd>
-                  </div>
-                </dl>
-                <footer class="stand-card__footer">
-                  <span>Updated {{ formatDate(stand.updatedAt) }}</span>
-                </footer>
-              </article>
-            }
-          </div>
         } @else {
-          <div class="empty-state">
-            <h3>No available stands</h3>
-            <p>All stands are currently allocated. Check back later or refresh.</p>
-          </div>
+          @if (standSearchResult) {
+            <div class="search-result-card">
+              <div class="search-result-card__header">
+                <div>
+                  <p class="eyebrow">Search result</p>
+                  <h3>{{ standSearchResult.name || 'Untitled stand' }}</h3>
+                </div>
+                <span class="pill" [class.available-pill]="isStandAvailable(standSearchResult)">
+                  {{ standSearchResult.status | titlecase }}
+                </span>
+              </div>
+              <dl class="stand-meta">
+                <div>
+                  <dt>Stand ID</dt>
+                  <dd>{{ standSearchResult.id }}</dd>
+                </div>
+                <div>
+                  <dt>Stand No.</dt>
+                  <dd>{{ getStandNumber(standSearchResult) ?? '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Type</dt>
+                  <dd>{{ standSearchResult.type || '—' }}</dd>
+                </div>
+                <div>
+                  <dt>Location</dt>
+                  <dd>{{ standSearchResult.location || '—' }}</dd>
+                </div>
+              </dl>
+              <footer class="stand-card__footer">
+                <span>Last updated {{ formatDate(standSearchResult.updatedAt) }}</span>
+              </footer>
+            </div>
+          }
+
+          @if (getAvailableStands().length) {
+            <div class="stands-collection">
+              @for (stand of getAvailableStands(); track stand.id) {
+                <article class="stand-card available stand-card--details">
+                  <header class="stand-card__header">
+                    <div>
+                      <p class="stand-name">{{ stand.name || 'Unnamed Stand' }}</p>
+                      <span class="stand-location">{{ stand.location || '—' }}</span>
+                    </div>
+                    <span class="stand-number">
+                      <strong>{{ getStandNumber(stand) ?? '—' }}</strong>
+                    </span>
+                  </header>
+                  <dl class="stand-meta">
+                    <div>
+                      <dt>Type</dt>
+                      <dd>{{ stand.type || '—' }}</dd>
+                    </div>
+                    <div>
+                      <dt>Price</dt>
+                      <dd>{{ stand.price | currency: 'USD' : 'symbol' : '1.0-0' }}</dd>
+                    </div>
+                    <div>
+                      <dt>Size</dt>
+                      <dd>{{ stand.size ? stand.size + ' sqm' : '—' }}</dd>
+                    </div>
+                  </dl>
+                  <footer class="stand-card__footer">
+                    <span>Updated {{ formatDate(stand.updatedAt) }}</span>
+                  </footer>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-state">
+              <h3>No available stands</h3>
+              <p>All stands are currently allocated. Check back later or refresh.</p>
+            </div>
+          }
         }
       </section>
     } @else if (activeView === 'dashboard') {
@@ -302,4 +360,111 @@
     (close)="handleCloseUpdateProfileModal()"
     (profileUpdated)="handleProfileUpdated()"
   ></app-update-profile-modal>
+}
+
+@if (isAddStandModalOpen()) {
+  <div class="modal-backdrop" (click)="closeAddStandModal()"></div>
+  <section class="modal add-stand-modal" (click)="$event.stopPropagation()">
+    <header class="add-stand-modal__header">
+      <div>
+        <p class="eyebrow">Inventory</p>
+        <h2>Add stand</h2>
+      </div>
+      <button type="button" class="icon-button ghost" aria-label="Close" (click)="closeAddStandModal()">
+        <svg viewBox="0 0 24 24" role="presentation">
+          <path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="add-stand-tabs">
+      <button type="button" [class.active]="addStandMode === 'single'" (click)="setAddStandMode('single')">Single stand</button>
+      <button type="button" [class.active]="addStandMode === 'bulk'" (click)="setAddStandMode('bulk')">CSV / Excel upload</button>
+    </div>
+
+    @if (addStandMode === 'single') {
+      <form class="add-stand-form" (ngSubmit)="handleSingleStandSubmit($event)" novalidate>
+        <div class="form-grid">
+          <label>
+            <span>Name</span>
+            <input type="text" name="standName" [(ngModel)]="singleStandForm.name" required />
+          </label>
+          <label>
+            <span>Stand number</span>
+            <input type="text" name="standNumber" [(ngModel)]="singleStandForm.standNumber" required />
+          </label>
+          <label>
+            <span>Type</span>
+            <input type="text" name="standType" [(ngModel)]="singleStandForm.type" required />
+          </label>
+          <label>
+            <span>Price</span>
+            <input type="number" name="standPrice" [(ngModel)]="singleStandForm.price" required min="0" step="0.01" />
+          </label>
+          <label>
+            <span>Size (sqm)</span>
+            <input type="number" name="standSize" [(ngModel)]="singleStandForm.size" required min="0" step="0.01" />
+          </label>
+          <label>
+            <span>Location</span>
+            <input type="text" name="standLocation" [(ngModel)]="singleStandForm.location" required />
+          </label>
+          <label>
+            <span>Status</span>
+            <select name="standStatus" [(ngModel)]="singleStandForm.status">
+              <option value="available">Available</option>
+              <option value="reserved">Reserved</option>
+              <option value="sold">Sold</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>Description</span>
+          <textarea name="standDescription" rows="3" [(ngModel)]="singleStandForm.description"></textarea>
+        </label>
+
+        @if (singleStandError) {
+          <p class="form-feedback error">{{ singleStandError }}</p>
+        }
+        @if (singleStandSuccess) {
+          <p class="form-feedback success">{{ singleStandSuccess }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="ghost" (click)="closeAddStandModal()">Cancel</button>
+          <button type="submit" class="primary" [disabled]="singleStandSubmitting">
+            {{ singleStandSubmitting ? 'Saving…' : 'Save stand' }}
+          </button>
+        </div>
+      </form>
+    } @else {
+      <form class="add-stand-form" (ngSubmit)="handleBulkUpload($event)" novalidate>
+        <label class="file-upload">
+          <span>Upload CSV/XLSX</span>
+          <input
+            type="file"
+            name="bulkStandFile"
+            accept=".csv,.xlsx,.xls"
+            (change)="handleBulkFileSelected($event)"
+            #bulkFileInput
+          />
+        </label>
+        @if (bulkUploadError) {
+          <p class="form-feedback error">{{ bulkUploadError }}</p>
+        }
+        @if (bulkUploadSuccess) {
+          <p class="form-feedback success">{{ bulkUploadSuccess }}</p>
+        }
+        <p class="helper">
+          Make sure your file includes columns like name, standNumber, type, price, size, location, status, and description.
+        </p>
+        <div class="form-actions">
+          <button type="button" class="ghost" (click)="closeAddStandModal()">Cancel</button>
+          <button type="submit" class="primary" [disabled]="bulkUploading">
+            {{ bulkUploading ? 'Uploading…' : 'Upload file' }}
+          </button>
+        </div>
+      </form>
+    }
+  </section>
 }
