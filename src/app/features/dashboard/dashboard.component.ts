@@ -420,6 +420,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/add-stands']);
   }
 
+  protected navigateToStandBuyers(stand: Stand): void {
+    if (!stand?.id) {
+      return;
+    }
+
+    this.router.navigate(['/stands', stand.id, 'buyers']);
+  }
+
+  protected handleStandCardKeypress(event: KeyboardEvent, stand: Stand): void {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    this.navigateToStandBuyers(stand);
+  }
+
   private buildUserInitials(profile: UserProfile): string {
     const firstInitial = profile.firstName?.charAt(0) ?? '';
     const lastInitial = profile.lastName?.charAt(0) ?? '';

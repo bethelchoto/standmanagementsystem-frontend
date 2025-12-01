@@ -1145,6 +1145,15 @@
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
+.stand-card--clickable {
+  cursor: pointer;
+}
+
+.stand-card--clickable:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 4px;
+}
+
 .stand-card.available {
   background: #dcfce7;
   border-color: #000;

@@ -27,6 +27,12 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
   {
+    path: 'stands/:standId/buyers',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/stands/stand-buyers/stand-buyers.component').then((m) => m.StandBuyersComponent)
+  },
+  {
     path: 'add-stands',
     canActivate: [authGuard],
     loadComponent: () =>

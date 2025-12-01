@@ -1,0 +1,188 @@
+<section class="stand-buyers-shell" *ngIf="!standError; else errorState">
+  <header class="stand-buyers__header">
+    <button type="button" class="ghost-button" (click)="navigateBack()">← Back to stands</button>
+    <div>
+      <p class="eyebrow">Stand</p>
+      <h1>{{ stand?.name || 'Stand details' }}</h1>
+      <p class="helper">
+        Manage buyers linked to <strong>{{ stand?.standNumber || stand?.id }}</strong>.
+      </p>
+    </div>
+    <div class="stand-overview">
+      <dl>
+        <div>
+          <dt>Status</dt>
+          <dd>
+            <span class="pill" [class.pill--available]="stand?.status === 'available'">
+              {{ stand?.status | titlecase }}
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt>Price</dt>
+          <dd>{{ stand?.price | currency: 'USD' : 'symbol' : '1.0-0' }}</dd>
+        </div>
+        <div>
+          <dt>Size</dt>
+          <dd>{{ stand?.size ? stand?.size + ' sqm' : '—' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="forms-grid">
+    <article class="form-card">
+      <header>
+        <p class="eyebrow">New buyer</p>
+        <h2>Add buyer to this stand</h2>
+      </header>
+      <form (ngSubmit)="handleAddBuyerSubmit($event)">
+        <div class="form-grid">
+          <label>
+            <span>First name *</span>
+            <input type="text" [(ngModel)]="addBuyerForm.firstName" name="buyerFirstName" required />
+          </label>
+          <label>
+            <span>Last name *</span>
+            <input type="text" [(ngModel)]="addBuyerForm.lastName" name="buyerLastName" required />
+          </label>
+          <label>
+            <span>Email *</span>
+            <input type="email" [(ngModel)]="addBuyerForm.email" name="buyerEmail" required />
+          </label>
+          <label>
+            <span>Phone number *</span>
+            <input type="tel" [(ngModel)]="addBuyerForm.phoneNumber" name="buyerPhone" required />
+          </label>
+          <label>
+            <span>National ID</span>
+            <input
+              type="text"
+              [(ngModel)]="addBuyerForm.nationalIdentityNumber"
+              name="buyerNationalId"
+              placeholder="70-1234567H12"
+            />
+          </label>
+          <label>
+            <span>Notes</span>
+            <textarea
+              rows="3"
+              [(ngModel)]="addBuyerForm.notes"
+              name="buyerNotes"
+              placeholder="Optional extra context"
+            ></textarea>
+          </label>
+        </div>
+        <p class="form-feedback error" *ngIf="addBuyerError">{{ addBuyerError }}</p>
+        <p class="form-feedback success" *ngIf="addBuyerSuccess">{{ addBuyerSuccess }}</p>
+        <button type="submit" class="primary" [disabled]="addBuyerSubmitting">
+          {{ addBuyerSubmitting ? 'Saving buyer…' : 'Add buyer' }}
+        </button>
+      </form>
+    </article>
+
+    <article class="form-card">
+      <header>
+        <p class="eyebrow">Existing buyer</p>
+        <h2>Link a buyer account</h2>
+      </header>
+      <form (ngSubmit)="handleLinkBuyerSubmit($event)">
+        <div class="form-grid">
+          <label>
+            <span>Buyer user ID or email *</span>
+            <input type="text" [(ngModel)]="linkBuyerForm.buyerUserId" name="buyerUserId" required />
+          </label>
+          <label>
+            <span>Notes</span>
+            <textarea rows="3" [(ngModel)]="linkBuyerForm.notes" name="buyerLinkNotes"></textarea>
+          </label>
+        </div>
+        <p class="form-feedback error" *ngIf="linkBuyerError">{{ linkBuyerError }}</p>
+        <p class="form-feedback success" *ngIf="linkBuyerSuccess">{{ linkBuyerSuccess }}</p>
+        <button type="submit" class="secondary" [disabled]="linkBuyerSubmitting">
+          {{ linkBuyerSubmitting ? 'Linking…' : 'Link buyer' }}
+        </button>
+      </form>
+    </article>
+  </div>
+
+  <section class="lists-grid">
+    <article class="list-card">
+      <header>
+        <div>
+          <p class="eyebrow">Buyers</p>
+          <h3>Buyers attached to this stand</h3>
+        </div>
+        <span class="pill">{{ buyers.length }} total</span>
+      </header>
+      <div class="list-body" *ngIf="!loadingBuyers; else loadingBuyersState">
+        <ul *ngIf="buyers.length; else noBuyersState">
+          <li *ngFor="let buyer of buyers">
+            <div>
+              <strong>{{ buyer.firstName }} {{ buyer.lastName }}</strong>
+              <p>{{ buyer.email }} · {{ buyer.phoneNumber }}</p>
+            </div>
+            <span>{{ formatDate(buyer.createdAt) }}</span>
+          </li>
+        </ul>
+      </div>
+    </article>
+
+    <article class="list-card">
+      <header>
+        <div>
+          <p class="eyebrow">Buyer links</p>
+          <h3>Linked buyer accounts</h3>
+        </div>
+        <span class="pill">{{ buyerLinks.length }} linked</span>
+      </header>
+      <div class="list-body" *ngIf="!loadingBuyerLinks; else loadingLinksState">
+        <ul *ngIf="buyerLinks.length; else noLinksState">
+          <li *ngFor="let link of buyerLinks">
+            <div>
+              <strong>{{ link.buyer?.firstName || 'Linked buyer' }} {{ link.buyer?.lastName || '' }}</strong>
+              <p>
+                {{ link.buyerUserId || link.buyer?.email || '—' }} • Linked {{ formatDate(link.createdAt) }}
+              </p>
+            </div>
+            <button type="button" class="ghost-button danger" (click)="handleReleaseLink(link)">
+              Release
+            </button>
+          </li>
+        </ul>
+      </div>
+    </article>
+  </section>
+</section>
+
+<ng-template #errorState>
+  <section class="stand-buyers-shell error">
+    <p>{{ standError }}</p>
+    <button type="button" class="ghost-button" (click)="navigateBack()">Back to stands</button>
+  </section>
+</ng-template>
+
+<ng-template #loadingBuyersState>
+  <div class="loading-state">
+    <p>Loading buyers…</p>
+  </div>
+</ng-template>
+
+<ng-template #loadingLinksState>
+  <div class="loading-state">
+    <p>Loading buyer links…</p>
+  </div>
+</ng-template>
+
+<ng-template #noBuyersState>
+  <div class="empty-state">
+    <p>No buyers have been captured for this stand yet.</p>
+  </div>
+</ng-template>
+
+<ng-template #noLinksState>
+  <div class="empty-state">
+    <p>No buyer accounts are linked to this stand.</p>
+  </div>
+</ng-template>
+

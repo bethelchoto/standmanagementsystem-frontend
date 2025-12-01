@@ -2,6 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { Stand, StandsResponse } from '../models/stand.model';
+import { Buyer, StandBuyerLink } from '../models/buyer.model';
 
 const API_BASE_URL = 'https://standmanagementsystem.vercel.app/api';
 
@@ -81,7 +82,7 @@ export class StandsService {
       .pipe(map(() => void 0));
   }
 
-  getStandBuyers<T = unknown>(standId: string): Observable<T[]> {
+  getStandBuyers<T = Buyer>(standId: string): Observable<T[]> {
     return this.http
       .get<ApiCollectionResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyers`, {
         headers: this.buildAuthHeaders()
@@ -89,9 +90,37 @@ export class StandsService {
       .pipe(map((response) => response.data));
   }
 
-  addBuyerToStand<T = unknown>(standId: string, payload: Record<string, unknown>): Observable<T> {
+  addBuyerToStand<T = Buyer>(standId: string, payload: Record<string, unknown>): Observable<T> {
     return this.http
       .post<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyers`, payload, {
+        headers: this.buildAuthHeaders()
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  getStandBuyerLinks<T = StandBuyerLink>(standId: string): Observable<T[]> {
+    return this.http
+      .get<ApiCollectionResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, {
+        headers: this.buildAuthHeaders()
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  linkBuyerUserToStand<T = StandBuyerLink>(standId: string, payload: Record<string, unknown>): Observable<T> {
+    return this.http
+      .post<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, payload, {
+        headers: this.buildAuthHeaders()
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  releaseStandBuyerLink<T = StandBuyerLink>(
+    standId: string,
+    linkId: string,
+    payload: Record<string, unknown>
+  ): Observable<T> {
+    return this.http
+      .patch<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links/${linkId}/release`, payload, {
         headers: this.buildAuthHeaders()
       })
       .pipe(map((response) => response.data));

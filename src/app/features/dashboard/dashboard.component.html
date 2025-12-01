@@ -216,7 +216,14 @@
           @if (getAvailableStands().length) {
             <div class="stands-collection">
               @for (stand of getAvailableStands(); track stand.id) {
-                <article class="stand-card available stand-card--details">
+                <article
+                  class="stand-card available stand-card--details stand-card--clickable"
+                  role="button"
+                  tabindex="0"
+                  [attr.aria-label]="'Manage buyers for ' + (stand.name || stand.standNumber)"
+                  (click)="navigateToStandBuyers(stand)"
+                  (keyup)="handleStandCardKeypress($event, stand)"
+                >
                   <header class="stand-card__header">
                     <div>
                       <p class="stand-name">{{ stand.name || 'Unnamed Stand' }}</p>
