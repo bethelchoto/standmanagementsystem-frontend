@@ -164,7 +164,13 @@
               <p class="stand-search__error">{{ standSearchError }}</p>
             }
           </div>
-          <button type="button" class="ghost primary" (click)="openAddStandModal()" [disabled]="loadingStands()">Add stand</button>
+          <button
+            type="button"
+            class="primary"
+            (click)="goToAddStandPage()"
+          >
+            Add stand
+          </button>
         </header>
 
         @if (loadingStands()) {
@@ -362,109 +368,9 @@
   ></app-update-profile-modal>
 }
 
-@if (isAddStandModalOpen()) {
-  <div class="modal-backdrop" (click)="closeAddStandModal()"></div>
-  <section class="modal add-stand-modal" (click)="$event.stopPropagation()">
-    <header class="add-stand-modal__header">
-      <div>
-        <p class="eyebrow">Inventory</p>
-        <h2>Add stand</h2>
-      </div>
-      <button type="button" class="icon-button ghost" aria-label="Close" (click)="closeAddStandModal()">
-        <svg viewBox="0 0 24 24" role="presentation">
-          <path d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7 2.9 18.3 9.2 12 2.9 5.7 4.3 4.3l6.3 6.3 6.3-6.3z" />
-        </svg>
-      </button>
-    </header>
-
-    <div class="add-stand-tabs">
-      <button type="button" [class.active]="addStandMode === 'single'" (click)="setAddStandMode('single')">Single stand</button>
-      <button type="button" [class.active]="addStandMode === 'bulk'" (click)="setAddStandMode('bulk')">CSV / Excel upload</button>
-    </div>
-
-    @if (addStandMode === 'single') {
-      <form class="add-stand-form" (ngSubmit)="handleSingleStandSubmit($event)" novalidate>
-        <div class="form-grid">
-          <label>
-            <span>Name</span>
-            <input type="text" name="standName" [(ngModel)]="singleStandForm.name" required />
-          </label>
-          <label>
-            <span>Stand number</span>
-            <input type="text" name="standNumber" [(ngModel)]="singleStandForm.standNumber" required />
-          </label>
-          <label>
-            <span>Type</span>
-            <input type="text" name="standType" [(ngModel)]="singleStandForm.type" required />
-          </label>
-          <label>
-            <span>Price</span>
-            <input type="number" name="standPrice" [(ngModel)]="singleStandForm.price" required min="0" step="0.01" />
-          </label>
-          <label>
-            <span>Size (sqm)</span>
-            <input type="number" name="standSize" [(ngModel)]="singleStandForm.size" required min="0" step="0.01" />
-          </label>
-          <label>
-            <span>Location</span>
-            <input type="text" name="standLocation" [(ngModel)]="singleStandForm.location" required />
-          </label>
-          <label>
-            <span>Status</span>
-            <select name="standStatus" [(ngModel)]="singleStandForm.status">
-              <option value="available">Available</option>
-              <option value="reserved">Reserved</option>
-              <option value="sold">Sold</option>
-            </select>
-          </label>
-        </div>
-        <label>
-          <span>Description</span>
-          <textarea name="standDescription" rows="3" [(ngModel)]="singleStandForm.description"></textarea>
-        </label>
-
-        @if (singleStandError) {
-          <p class="form-feedback error">{{ singleStandError }}</p>
-        }
-        @if (singleStandSuccess) {
-          <p class="form-feedback success">{{ singleStandSuccess }}</p>
-        }
-
-        <div class="form-actions">
-          <button type="button" class="ghost" (click)="closeAddStandModal()">Cancel</button>
-          <button type="submit" class="primary" [disabled]="singleStandSubmitting">
-            {{ singleStandSubmitting ? 'Saving…' : 'Save stand' }}
-          </button>
-        </div>
-      </form>
-    } @else {
-      <form class="add-stand-form" (ngSubmit)="handleBulkUpload($event)" novalidate>
-        <label class="file-upload">
-          <span>Upload CSV/XLSX</span>
-          <input
-            type="file"
-            name="bulkStandFile"
-            accept=".csv,.xlsx,.xls"
-            (change)="handleBulkFileSelected($event)"
-            #bulkFileInput
-          />
-        </label>
-        @if (bulkUploadError) {
-          <p class="form-feedback error">{{ bulkUploadError }}</p>
-        }
-        @if (bulkUploadSuccess) {
-          <p class="form-feedback success">{{ bulkUploadSuccess }}</p>
-        }
-        <p class="helper">
-          Make sure your file includes columns like name, standNumber, type, price, size, location, status, and description.
-        </p>
-        <div class="form-actions">
-          <button type="button" class="ghost" (click)="closeAddStandModal()">Cancel</button>
-          <button type="submit" class="primary" [disabled]="bulkUploading">
-            {{ bulkUploading ? 'Uploading…' : 'Upload file' }}
-          </button>
-        </div>
-      </form>
-    }
-  </section>
+@if (isUpdateProfileModalOpen()) {
+  <app-update-profile-modal
+    (close)="handleCloseUpdateProfileModal()"
+    (profileUpdated)="handleProfileUpdated()"
+  ></app-update-profile-modal>
 }

@@ -26,6 +26,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent)
   },
+  {
+    path: 'add-stands',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/stands/add-stand/add-stand.component').then((m) => m.AddStandComponent)
+  },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   {
     path: 'auth',

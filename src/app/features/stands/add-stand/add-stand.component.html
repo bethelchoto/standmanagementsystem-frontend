@@ -1,0 +1,166 @@
+<section class="add-stand-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?auto=format&fit=crop&w=200&q=60" alt="Company logo" />
+      </div>
+      <div class="brand-copy">
+        <p class="eyebrow">Company Name</p>
+        <strong>Stand Seller</strong>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      @for (item of sidebarNav; track item.label) {
+        <button type="button" class="nav-link" [class.active]="isNavItemActive(item)" (click)="handleSidebarNavClick(item)">
+          <span class="icon">
+            <svg viewBox="0 0 24 24" role="presentation">
+              <ng-container [ngSwitch]="item.icon">
+                <path *ngSwitchCase="'dashboard'" d="M3 3h8v8H3V3zm10 0h8v6h-8V3zM3 13h8v8H3v-8zm10-4h8v12h-8V9z" />
+                <path *ngSwitchCase="'stands'" d="m4 9 8-5 8 5v10H4V9zm8-2.5-5 3.1V17h10v-7.4l-5-3.1z" />
+                <path *ngSwitchCase="'buyers'" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z" />
+                <path *ngSwitchCase="'payments'" d="M5 5h14v2H5zm0 6h14v2H5zm0 6h14v2H5z" />
+                <path *ngSwitchCase="'reports'" d="M6 20V10h2v10zm5 0V4h2v16zm5 0v-6h2v6z" />
+                <path *ngSwitchCase="'map'" d="M4 5h16v14H4zm2 2v10h12V7z" />
+                <path *ngSwitchCase="'settings'" d="m12 8 1.1-2.1 2.2-.4.5-2.5 2.1.7 1.4 2-1.5 2 1.5 2-1.4 2-2.1.7-.5-2.5-2.2-.4L12 8l-1.1 2.1-2.2.4-.5 2.5-2.1-.7-1.4-2 1.5-2-1.5-2 1.4-2 2.1-.7.5 2.5 2.2.4z" />
+                <path *ngSwitchDefault d="M5 11h14v2H5z" />
+              </ng-container>
+            </svg>
+          </span>
+          <span>{{ item.label }}</span>
+          @if (item.label === 'Stands') {
+            <span class="badge">{{ availableStandsCount }}</span>
+          } @else if (item.badge) {
+            <span class="badge">{{ item.badge }}</span>
+          }
+        </button>
+      }
+    </nav>
+
+    <div class="sidebar-card logout-card">
+      <button type="button" class="logout-button" (click)="handleLogout()">
+        <span>Log out</span>
+        <svg viewBox="0 0 24 24" role="presentation" aria-hidden="true">
+          <path d="M16 13v-2H7V8l-5 4 5 4v-3zm3-10H8a2 2 0 0 0-2 2v4h2V5h11v14H8v-4H6v4a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <div class="main-panel">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Inventory</p>
+        <h1>Add stand</h1>
+        <p class="helper">Capture a new stand’s core details, or upload a CSV to add many at once.</p>
+      </div>
+      <button type="button" class="ghost" (click)="handleCancel()">Back to stands</button>
+    </header>
+
+    <section class="forms-stack">
+      <form class="add-stand-card" (ngSubmit)="handleSingleStandSubmit($event)" novalidate>
+        <header class="add-stand-card__header">
+          <h2>Add a single stand</h2>
+          <p class="helper">Fill out the form to capture one stand’s information.</p>
+        </header>
+
+        <div class="add-stand-form">
+          <div class="form-grid">
+            <label>
+              <span>Name</span>
+              <input type="text" name="standName" [(ngModel)]="singleStandForm.name" required />
+            </label>
+            <label>
+              <span>Stand number</span>
+              <input type="text" name="standNumber" [(ngModel)]="singleStandForm.standNumber" required />
+            </label>
+            <label>
+              <span>Type</span>
+              <input type="text" name="standType" [(ngModel)]="singleStandForm.type" required />
+            </label>
+            <label>
+              <span>Price</span>
+              <input type="number" name="standPrice" [(ngModel)]="singleStandForm.price" required min="0" step="0.01" />
+            </label>
+            <label>
+              <span>Size (sqm)</span>
+              <input type="number" name="standSize" [(ngModel)]="singleStandForm.size" required min="0" step="0.01" />
+            </label>
+            <label>
+              <span>Location</span>
+              <input type="text" name="standLocation" [(ngModel)]="singleStandForm.location" required />
+            </label>
+            <label>
+              <span>Status</span>
+              <select name="standStatus" [(ngModel)]="singleStandForm.status">
+                <option value="available">Available</option>
+                <option value="reserved">Reserved</option>
+                <option value="sold">Sold</option>
+              </select>
+            </label>
+          </div>
+          <label>
+            <span>Description</span>
+            <textarea name="standDescription" rows="3" [(ngModel)]="singleStandForm.description"></textarea>
+          </label>
+        </div>
+
+        <p *ngIf="singleStandError" class="form-feedback error">{{ singleStandError }}</p>
+        <p *ngIf="singleStandSuccess" class="form-feedback success">{{ singleStandSuccess }}</p>
+
+        <div class="form-actions">
+          <button type="button" class="ghost" (click)="handleCancel()">Cancel</button>
+          <button type="submit" class="primary" [disabled]="singleStandSubmitting">
+            {{ singleStandSubmitting ? 'Saving…' : 'Save stand' }}
+          </button>
+        </div>
+      </form>
+
+      <section class="bulk-stand-card">
+        <header>
+          <p class="eyebrow">Bulk upload</p>
+          <h2>Add bulk stands</h2>
+          <p class="helper">
+            Upload a CSV file that contains columns for name, standNumber, type, price, size, location, status, and description.
+          </p>
+        </header>
+
+        <div class="bulk-input">
+          <label class="file-picker">
+            <input
+              #bulkFileInput
+              type="file"
+              accept=".csv"
+              (change)="handleBulkFileChange($event)"
+            />
+            <span>{{ selectedBulkFileName || 'Choose a CSV file' }}</span>
+          </label>
+          <p class="helper">Maximum size 5MB. UTF-8 encoded CSV files are supported.</p>
+        </div>
+
+        <ul class="bulk-guidelines">
+          <li>Required columns: name, standNumber.</li>
+          <li>Optional columns: type, price, size, location, status, description.</li>
+          <li>Statuses should be one of: available, reserved, sold.</li>
+        </ul>
+
+        <p *ngIf="bulkUploadError" class="form-feedback error">{{ bulkUploadError }}</p>
+        <p *ngIf="bulkUploadSuccess" class="form-feedback success">{{ bulkUploadSuccess }}</p>
+
+        <div class="form-actions">
+          <button type="button" class="ghost" (click)="resetBulkUpload()" [disabled]="bulkUploading || !selectedBulkFileName">
+            Clear file
+          </button>
+          <button
+            type="button"
+            class="primary"
+            (click)="handleBulkUpload()"
+            [disabled]="bulkUploading || !selectedBulkFileName"
+          >
+            {{ bulkUploading ? 'Uploading…' : 'Upload CSV' }}
+          </button>
+        </div>
+      </section>
+    </section>
+  </div>
+</section>
