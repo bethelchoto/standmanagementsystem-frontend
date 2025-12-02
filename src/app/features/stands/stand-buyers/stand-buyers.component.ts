@@ -6,7 +6,11 @@ import { Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Stand } from '../../../core/models/stand.model';
 import { Buyer, StandBuyerLink } from '../../../core/models/buyer.model';
-import { StandsService } from '../../../core/services/stands.service';
+import {
+  StandStatusRequest,
+  StandStatusResponse,
+  StandsService
+} from '../../../core/services/stands.service';
 
 type AddBuyerForm = {
   firstName: string;
@@ -118,10 +122,10 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
 
   protected handleLinkBuyerSubmit(event: Event): void {
     event.preventDefault();
-    const payload = this.buildLinkBuyerPayload();
+    const request = this.buildLinkBuyerStatusRequest();
 
-    if (!payload) {
-      this.linkBuyerError = 'Provide a valid buyer user ID or email to link.';
+    if (!request) {
+      this.linkBuyerError = 'Select a valid buyer user to link and sell this stand.';
       return;
     }
 
@@ -130,16 +134,15 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
     this.linkBuyerSuccess = null;
 
     this.standsService
-      .linkBuyerUserToStand<StandBuyerLink>(this.standId, payload)
+      .updateStandStatus(this.standId, request)
       .pipe(finalize(() => (this.linkBuyerSubmitting = false)))
       .subscribe({
-        next: (link) => {
-          this.linkBuyerSuccess = 'Buyer account linked to this stand.';
-          this.linkBuyerForm = this.buildDefaultLinkBuyerForm();
-          this.loadBuyerLinks();
+        next: (data) => {
+          this.handleStandStatusUpdateSuccess(data, 'Buyer account linked and stand marked as sold.');
         },
         error: () => {
-          this.linkBuyerError = 'Unable to link that buyer user. Confirm the identifier and try again.';
+          this.linkBuyerError =
+            'Unable to link that buyer user and sell the stand right now. Please try again.';
         }
       });
   }
@@ -315,15 +318,61 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.standsService.updateStandStatus(this.standId, { status: 'sold' }).subscribe({
-      next: (updatedStand) => {
-        this.stand = updatedStand;
+    const request: StandStatusRequest = { status: 'sold' };
+
+    this.standsService.updateStandStatus(this.standId, request).subscribe({
+      next: (data) => {
+        this.handleStandStatusUpdateSuccess(data);
       },
       error: () => {
         // If the status update fails, we silently ignore it here to avoid blocking buyer creation UX.
         // Consider showing a non-blocking notification in future iterations.
       }
     });
+  }
+
+  private buildLinkBuyerStatusRequest(): StandStatusRequest | null {
+    const buyerUserId = this.linkBuyerForm.buyerUserId.trim();
+
+    if (!buyerUserId) {
+      return null;
+    }
+
+    const request: StandStatusRequest = {
+      status: 'sold',
+      buyerUserId
+    };
+
+    if (this.linkBuyerForm.notes.trim()) {
+      request.allocationNote = this.linkBuyerForm.notes.trim();
+    }
+
+    return request;
+  }
+
+  private handleStandStatusUpdateSuccess(
+    data: StandStatusResponse,
+    successMessage?: string | null
+  ): void {
+    if (this.stand) {
+      this.stand = {
+        ...this.stand,
+        status: data.status
+      };
+    }
+
+    if (Array.isArray(data.buyerLinks)) {
+      this.buyerLinks = data.buyerLinks;
+    } else {
+      this.loadBuyerLinks();
+    }
+
+    this.refreshBuyerData();
+
+    if (successMessage) {
+      this.linkBuyerSuccess = successMessage;
+      this.linkBuyerForm = this.buildDefaultLinkBuyerForm();
+    }
   }
 }
 

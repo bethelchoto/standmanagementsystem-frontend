@@ -18,8 +18,16 @@ interface ApiCollectionResponse<T> {
   data: T[];
 }
 
-interface StandStatusRequest {
+export interface StandStatusRequest {
   status: string;
+  buyerUserId?: string;
+  allocationType?: string;
+  allocationNote?: string;
+}
+
+export interface StandStatusResponse {
+  status: string;
+  buyerLinks?: StandBuyerLink[];
 }
 
 @Injectable({
@@ -66,9 +74,9 @@ export class StandsService {
       .pipe(map((response) => response.data));
   }
 
-  updateStandStatus(standId: string, payload: StandStatusRequest): Observable<Stand> {
+  updateStandStatus(standId: string, payload: StandStatusRequest): Observable<StandStatusResponse> {
     return this.http
-      .patch<ApiResponse<Stand>>(`${API_BASE_URL}/stands/${standId}/status`, payload, {
+      .patch<ApiResponse<StandStatusResponse>>(`${API_BASE_URL}/stands/${standId}/status`, payload, {
         headers: this.buildAuthHeaders()
       })
       .pipe(map((response) => response.data));
