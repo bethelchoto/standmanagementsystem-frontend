@@ -108,6 +108,7 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
           this.addBuyerSuccess = `${buyer.firstName} ${buyer.lastName} was added successfully.`;
           this.addBuyerForm = this.buildDefaultAddBuyerForm();
           this.loadBuyers();
+          this.markStandAsSold();
         },
         error: () => {
           this.addBuyerError = 'Unable to add the buyer right now. Please try again shortly.';
@@ -307,6 +308,22 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
       buyerUserId: '',
       notes: ''
     };
+  }
+
+  private markStandAsSold(): void {
+    if (!this.standId || this.stand?.status === 'sold') {
+      return;
+    }
+
+    this.standsService.updateStandStatus(this.standId, { status: 'sold' }).subscribe({
+      next: (updatedStand) => {
+        this.stand = updatedStand;
+      },
+      error: () => {
+        // If the status update fails, we silently ignore it here to avoid blocking buyer creation UX.
+        // Consider showing a non-blocking notification in future iterations.
+      }
+    });
   }
 }
 
