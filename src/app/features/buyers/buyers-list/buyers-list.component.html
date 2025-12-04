@@ -1,0 +1,66 @@
+<section class="buyers-list">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Buyers</p>
+      <h1>All Buyers</h1>
+      <p class="description">
+        View all buyers and the number of stands associated with each buyer.
+      </p>
+    </div>
+    <button type="button" class="refresh-button" (click)="refresh()" [disabled]="loading()">
+      <svg viewBox="0 0 24 24" role="presentation" aria-hidden="true">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z" />
+      </svg>
+      Refresh
+    </button>
+  </header>
+
+  <div class="buyers-table-container" *ngIf="!error(); else errorState">
+    <div *ngIf="loading(); else buyersTable" class="loading-state">
+      <p>Loading buyers...</p>
+    </div>
+  </div>
+
+  <ng-template #buyersTable>
+    <div class="buyers-table-wrapper">
+      <table class="buyers-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>National ID</th>
+            <th>Stands</th>
+            <th>Date Added</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let buyer of buyers(); trackBy: trackByBuyerId">
+            <td>
+              <strong>{{ buyer.firstName }} {{ buyer.lastName }}</strong>
+            </td>
+            <td>{{ buyer.email }}</td>
+            <td>{{ buyer.phoneNumber }}</td>
+            <td>{{ buyer.nationalIdentityNumber || '—' }}</td>
+            <td>
+              <span class="stand-count-badge">{{ buyer.standCount }}</span>
+            </td>
+            <td>{{ formatDate(buyer.createdAt) }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="buyers().length === 0" class="empty-state">
+        <p>No buyers found.</p>
+        <p class="empty-state-helper">Buyers will appear here once they are added to stands.</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template #errorState>
+    <div class="error-state">
+      <p>{{ error() }}</p>
+      <button type="button" class="primary-button" (click)="refresh()">Try Again</button>
+    </div>
+  </ng-template>
+</section>

@@ -30,8 +30,8 @@ export const routes: Routes = [
     path: 'buyers',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/buyers/buyer-endpoints/buyer-endpoints.component').then(
-        (m) => m.BuyerEndpointsComponent
+      import('./features/buyers/buyers-list/buyers-list.component').then(
+        (m) => m.BuyersListComponent
       )
   },
   {

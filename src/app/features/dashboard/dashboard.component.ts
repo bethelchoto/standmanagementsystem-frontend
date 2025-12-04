@@ -141,7 +141,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   protected readonly sidebarNav: SidebarNavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', active: true, route: 'dashboard' },
     { label: 'Stands', icon: 'stands', route: 'stands' },
-    { label: 'Buyers', icon: 'buyers' },
+    { label: 'Buyers', icon: 'buyers', route: 'buyers' },
     { label: 'Payments', icon: 'payments', badge: '4' },
     { label: 'Reports', icon: 'reports' },
     { label: 'Map', icon: 'map', route: 'map' },
