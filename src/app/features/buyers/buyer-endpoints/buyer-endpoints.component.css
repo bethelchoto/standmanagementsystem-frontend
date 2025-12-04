@@ -1,0 +1,156 @@
+.buyer-endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.page-header .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.page-header h1 {
+  margin: 0.25rem 0;
+  font-size: 2rem;
+}
+
+.page-header .description {
+  margin: 0;
+  color: #475569;
+}
+
+.endpoint-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.endpoint-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(15, 23, 42, 0.05);
+}
+
+.endpoint-path {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.endpoint-path .path-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.endpoint-path code {
+  background-color: #f8fafc;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.operations {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.operation {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.operation-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.operation-header .summary {
+  font-weight: 600;
+  margin: 0;
+}
+
+.operation-header .tags {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #64748b;
+}
+
+.pill {
+  font-weight: 600;
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.pill.get {
+  background-color: #0ea5e9;
+}
+
+.pill.post {
+  background-color: #10b981;
+}
+
+.pill.patch {
+  background-color: #f97316;
+}
+
+.operation-body {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.operation-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.operation-row .label {
+  width: 140px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.operation-row ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.operation-row li {
+  margin-bottom: 0.25rem;
+}
+
+@media (max-width: 720px) {
+  .buyer-endpoints {
+    padding: 1rem;
+  }
+
+  .operation-row {
+    flex-direction: column;
+  }
+
+  .operation-row .label {
+    width: auto;
+  }
+}
+

@@ -1,0 +1,65 @@
+<section class="buyer-endpoints">
+  <header class="page-header">
+    <p class="eyebrow">API Reference</p>
+    <h1>Buyer endpoints</h1>
+    <p class="description">
+      Use this catalog to wire the buyer experience. Each entry includes the HTTP method, security scope, request
+      payload, parameters, and the response contract.
+    </p>
+  </header>
+
+  <div class="endpoint-list">
+    <article class="endpoint-card" *ngFor="let endpoint of endpoints">
+      <div class="endpoint-path">
+        <span class="path-label">Path</span>
+        <code>{{ endpoint.path }}</code>
+      </div>
+
+      <div class="operations">
+        <section class="operation" *ngFor="let operation of endpoint.operations">
+          <div class="operation-header">
+            <span class="method pill {{ operation.method | lowercase }}">{{ operation.method }}</span>
+            <div>
+              <p class="summary">{{ operation.summary }}</p>
+              <p class="tags">Tags: {{ operation.tags.join(', ') }}</p>
+            </div>
+          </div>
+
+          <div class="operation-body">
+            <div *ngIf="operation.security?.length" class="operation-row">
+              <span class="label">Security</span>
+              <span>{{ operation.security?.join(', ') }}</span>
+            </div>
+
+            <div *ngIf="operation.requestBody" class="operation-row">
+              <span class="label">Request body</span>
+              <span>{{ operation.requestBody }}</span>
+            </div>
+
+            <div *ngIf="operation.parameters?.length" class="operation-row">
+              <span class="label">Parameters</span>
+              <ul>
+                <li *ngFor="let parameter of operation.parameters">
+                  <strong>{{ parameter.name }}</strong>
+                  <span>({{ parameter.location }}{{ parameter.required ? ', required' : '' }})</span>
+                  <span> - {{ parameter.schema }}</span>
+                  <span *ngIf="parameter.description"> — {{ parameter.description }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="operation-row">
+              <span class="label">Responses</span>
+              <ul>
+                <li *ngFor="let response of operation.responses">
+                  <strong>{{ response.status }}</strong> - {{ response.description }}
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </article>
+  </div>
+</section>
+
