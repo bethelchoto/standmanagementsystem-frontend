@@ -112,7 +112,6 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
           this.addBuyerSuccess = `${buyer.firstName} ${buyer.lastName} was added successfully.`;
           this.addBuyerForm = this.buildDefaultAddBuyerForm();
           this.loadBuyers();
-          this.markStandAsSold();
         },
         error: () => {
           this.addBuyerError = 'Unable to add the buyer right now. Please try again shortly.';
@@ -152,25 +151,26 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let reason = 'Released via dashboard';
-    if (typeof window !== 'undefined') {
-      const promptValue = window.prompt('Add a reason for releasing this buyer link.', '');
-      if (promptValue === null) {
-        return;
-      }
-      reason = promptValue.trim() || reason;
-    }
-
-    this.standsService
-      .releaseStandBuyerLink(this.standId, link.id, { reason })
-      .subscribe({
-        next: () => {
-          this.refreshBuyerData();
-        },
-        error: () => {
-          alert('Unable to release the buyer link right now.');
-        }
-      });
+    // Stand buyer link release temporarily disabled until backend support exists.
+    // let reason = 'Released via dashboard';
+    // if (typeof window !== 'undefined') {
+    //   const promptValue = window.prompt('Add a reason for releasing this buyer link.', '');
+    //   if (promptValue === null) {
+    //     return;
+    //   }
+    //   reason = promptValue.trim() || reason;
+    // }
+    //
+    // this.standsService
+    //   .releaseStandBuyerLink(this.standId, link.id, { reason })
+    //   .subscribe({
+    //     next: () => {
+    //       this.refreshBuyerData();
+    //     },
+    //     error: () => {
+    //       alert('Unable to release the buyer link right now.');
+    //     }
+    //   });
   }
 
   protected formatDate(value?: string | null): string {
@@ -212,7 +212,7 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
 
   private refreshBuyerData(): void {
     this.loadBuyers();
-    this.loadBuyerLinks();
+    // this.loadBuyerLinks();
   }
 
   private loadBuyers(): void {
@@ -240,17 +240,20 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
     }
 
     this.loadingBuyerLinks = true;
-    this.standsService
-      .getStandBuyerLinks<StandBuyerLink>(this.standId)
-      .pipe(finalize(() => (this.loadingBuyerLinks = false)))
-      .subscribe({
-        next: (links) => {
-          this.buyerLinks = links;
-        },
-        error: () => {
-          this.buyerLinks = [];
-        }
-      });
+    // Stand buyer links fetch disabled until backend support exists.
+    // this.standsService
+    //   .getStandBuyerLinks<StandBuyerLink>(this.standId)
+    //   .pipe(finalize(() => (this.loadingBuyerLinks = false)))
+    //   .subscribe({
+    //     next: (links: StandBuyerLink[]) => {
+    //       this.buyerLinks = links;
+    //     },
+    //     error: () => {
+    //       this.buyerLinks = [];
+    //     }
+    //   });
+    this.loadingBuyerLinks = false;
+    this.buyerLinks = [];
   }
 
   private validateAddBuyerForm(): boolean {
@@ -311,24 +314,6 @@ export class StandBuyersComponent implements OnInit, OnDestroy {
       buyerUserId: '',
       notes: ''
     };
-  }
-
-  private markStandAsSold(): void {
-    if (!this.standId || this.stand?.status === 'sold') {
-      return;
-    }
-
-    const request: StandStatusRequest = { status: 'sold' };
-
-    this.standsService.updateStandStatus(this.standId, request).subscribe({
-      next: (data) => {
-        this.handleStandStatusUpdateSuccess(data);
-      },
-      error: () => {
-        // If the status update fails, we silently ignore it here to avoid blocking buyer creation UX.
-        // Consider showing a non-blocking notification in future iterations.
-      }
-    });
   }
 
   private buildLinkBuyerStatusRequest(): StandStatusRequest | null {

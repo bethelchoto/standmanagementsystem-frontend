@@ -106,33 +106,33 @@ export class StandsService {
       .pipe(map((response) => response.data));
   }
 
-  getStandBuyerLinks<T = StandBuyerLink>(standId: string): Observable<T[]> {
-    return this.http
-      .get<ApiCollectionResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, {
-        headers: this.buildAuthHeaders()
-      })
-      .pipe(map((response) => response.data));
-  }
+  // getStandBuyerLinks<T = StandBuyerLink>(standId: string): Observable<T[]> {
+  //   return this.http
+  //     .get<ApiCollectionResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, {
+  //       headers: this.buildAuthHeaders()
+  //     })
+  //     .pipe(map((response) => response.data));
+  // }
 
-  linkBuyerUserToStand<T = StandBuyerLink>(standId: string, payload: Record<string, unknown>): Observable<T> {
-    return this.http
-      .post<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, payload, {
-        headers: this.buildAuthHeaders()
-      })
-      .pipe(map((response) => response.data));
-  }
+  // linkBuyerUserToStand<T = StandBuyerLink>(standId: string, payload: Record<string, unknown>): Observable<T> {
+  //   return this.http
+  //     .post<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links`, payload, {
+  //       headers: this.buildAuthHeaders()
+  //     })
+  //     .pipe(map((response) => response.data));
+  // }
 
-  releaseStandBuyerLink<T = StandBuyerLink>(
-    standId: string,
-    linkId: string,
-    payload: Record<string, unknown>
-  ): Observable<T> {
-    return this.http
-      .patch<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links/${linkId}/release`, payload, {
-        headers: this.buildAuthHeaders()
-      })
-      .pipe(map((response) => response.data));
-  }
+  // releaseStandBuyerLink<T = StandBuyerLink>(
+  //   standId: string,
+  //   linkId: string,
+  //   payload: Record<string, unknown>
+  // ): Observable<T> {
+  //   return this.http
+  //     .patch<ApiResponse<T>>(`${API_BASE_URL}/stands/${standId}/buyer-links/${linkId}/release`, payload, {
+  //       headers: this.buildAuthHeaders()
+  //     })
+  //     .pipe(map((response) => response.data));
+  // }
 
   getStandTransactions<T = unknown>(standId: string): Observable<T[]> {
     return this.http
